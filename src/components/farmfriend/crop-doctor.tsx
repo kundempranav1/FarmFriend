@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, RefreshCcw, Leaf, ChevronsRight, TestTube2, AlertTriangle, Loader2 } from 'lucide-react';
+import { Camera, RefreshCcw, Leaf, ChevronsRight, TestTube2, AlertTriangle, Loader2, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { diagnoseCropProblem, type DiagnoseCropProblemOutput } from '@/ai/flows/diagnose-crop-problem';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -91,6 +91,37 @@ export function CropDoctor() {
     setPreviewImage(null);
     form.reset();
   }
+
+  const handleDownload = () => {
+    if (!diagnosis.data) return;
+    const { diagnosis: cropDiagnosis, confidence, solutions, prevention } = diagnosis.data;
+    const { description } = form.getValues();
+
+    let reportContent = `Crop Diagnosis Report\n`;
+    reportContent += `=======================\n\n`;
+    reportContent += `Problem Description:\n${description}\n\n`;
+    reportContent += `Diagnosis: ${cropDiagnosis}\n`;
+    reportContent += `Confidence: ${(confidence * 100).toFixed(0)}%\n\n`;
+    reportContent += `--- Solutions ---\n`;
+    reportContent += `Organic Remedies:\n`;
+    reportContent += solutions.organicRemedies.map(s => `- ${s}`).join('\n');
+    reportContent += `\n\n`;
+    reportContent += `Chemical Treatments:\n`;
+    reportContent += solutions.chemicalTreatments.map(s => `- ${s}`).join('\n');
+    reportContent += `\n\n`;
+    reportContent += `--- Prevention ---\n`;
+    reportContent += prevention.map(p => `- ${p}`).join('\n');
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crop-diagnosis-report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <section id="crop-doctor" className="w-full">
@@ -233,10 +264,14 @@ export function CropDoctor() {
               </Accordion>
             </div>
             
-            <div className="text-center mt-6">
+            <div className="text-center mt-6 flex justify-center gap-4">
                 <Button onClick={resetDiagnosis}>
                     <RefreshCcw className="mr-2 h-4 w-4"/>
                     {t.startOver}
+                </Button>
+                <Button variant="outline" onClick={handleDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Report
                 </Button>
             </div>
           </CardContent>
@@ -259,3 +294,5 @@ export function CropDoctor() {
     </section>
   );
 }
+
+    
