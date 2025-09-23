@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "crop-diagnosis-placeholder",
+      "description": "Placeholder image for crop diagnosis, showing hands holding soil with a small plant.",
+      "imageUrl": "https://images.unsplash.com/photo-1755253944201-0b3b96a1ffbe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwbGFudCUyMGFncmljdWx0dXJlfGVufDB8fHx8MTc1ODYzMTE3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "plant agriculture"
+    }
+  ]
 }

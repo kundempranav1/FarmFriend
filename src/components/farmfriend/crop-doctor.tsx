@@ -1,0 +1,261 @@
+"use client";
+
+import { useState } from 'react';
+import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { Camera, RefreshCcw, Leaf, ChevronsRight, TestTube2, AlertTriangle, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/language-context';
+import { diagnoseCropProblem, type DiagnoseCropProblemOutput } from '@/ai/flows/diagnose-crop-problem';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const formSchema = z.object({
+  photo: z.custom<FileList>().refine(file => file?.length === 1, 'Photo is required.'),
+  description: z.string().min(10, 'Please provide a more detailed description (at least 10 characters).'),
+});
+
+type DiagnosisState = {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  data: DiagnoseCropProblemOutput | null;
+  error: string | null;
+};
+
+export function CropDoctor() {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisState>({ status: 'idle', data: null, error: null });
+
+  const placeholderImage = PlaceHolderImages.find(p => p.id === 'crop-diagnosis-placeholder');
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { description: '' },
+  });
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setDiagnosis({ status: 'loading', data: null, error: null });
+    setDialogOpen(false);
+
+    try {
+      const file = values.photo[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        const result = await diagnoseCropProblem({
+          photoDataUri: base64data,
+          description: values.description,
+        });
+        setDiagnosis({ status: 'success', data: result, error: null });
+      };
+      reader.onerror = () => {
+        throw new Error("Failed to read file.");
+      }
+    } catch (error) {
+      console.error(error);
+      setDiagnosis({ status: 'error', data: null, error: t.toastDiagnosisError });
+      toast({
+        variant: "destructive",
+        title: t.toastErrorTitle,
+        description: t.toastDiagnosisError,
+      });
+    }
+  };
+  
+  const resetDiagnosis = () => {
+    setDiagnosis({ status: 'idle', data: null, error: null });
+    setPreviewImage(null);
+    form.reset();
+  }
+
+  return (
+    <section id="crop-doctor" className="w-full">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
+          {t.cropDoctorTitle}
+        </h2>
+        <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mt-4">
+          {t.cropDoctorDescription}
+        </p>
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        {diagnosis.status === 'idle' && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full shadow-lg transform hover:scale-105 transition-transform">
+                <Camera className="mr-2 h-6 w-6" />
+                {t.diagnoseCrop}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{t.dialogTitle}</DialogTitle>
+                <DialogDescription>{t.dialogDescription}</DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.photoLabel}</FormLabel>
+                        <FormControl>
+                          <Input type="file" accept="image/*" onChange={(e) => { field.onChange(e.target.files); handleFileChange(e); }} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {previewImage && (
+                    <div className="relative h-40 w-full">
+                        <Image src={previewImage} alt="Preview" layout="fill" objectFit="contain" className="rounded-md" />
+                    </div>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.descriptionLabel}</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder={t.descriptionPlaceholder} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                    <Button type="submit">{t.submitDiagnosis}</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      {diagnosis.status === 'loading' && (
+        <Card className="max-w-2xl mx-auto mt-8 animate-pulse">
+            <CardHeader className="text-center">
+                <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+                <CardTitle className="text-2xl">{t.diagnosing}</CardTitle>
+                <CardDescription>Please wait while we analyze your image...</CardDescription>
+            </CardHeader>
+        </Card>
+      )}
+
+      {diagnosis.status === 'success' && diagnosis.data && (
+        <Card className="max-w-2xl mx-auto mt-8 overflow-hidden shadow-2xl">
+          <CardHeader className="bg-card">
+            <CardTitle className="text-2xl font-bold text-center">{t.diagnosisResultTitle}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="text-center">
+                {previewImage && <Image src={previewImage} alt="Diagnosed image" width={600} height={400} className="rounded-lg mx-auto mb-4 border" />}
+                <p className="text-muted-foreground text-lg">{form.getValues('description')}</p>
+            </div>
+            
+            <Card className="bg-secondary/50">
+              <CardHeader>
+                <CardTitle className="text-3xl font-extrabold text-primary text-center">{diagnosis.data.diagnosis}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center font-medium text-muted-foreground mb-2">{t.confidence}</p>
+                <div className="flex items-center gap-4">
+                  <Progress value={diagnosis.data.confidence * 100} className="h-3" />
+                  <span className="font-bold text-lg text-primary">{(diagnosis.data.confidence * 100).toFixed(0)}%</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div>
+              <h3 className="font-bold text-xl mb-4 text-center">{t.solutions}</h3>
+              <Tabs defaultValue="organic" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="organic"><Leaf className="mr-2 h-4 w-4" />{t.organicRemedies}</TabsTrigger>
+                  <TabsTrigger value="chemical"><TestTube2 className="mr-2 h-4 w-4" />{t.chemicalTreatments}</TabsTrigger>
+                </TabsList>
+                <TabsContent value="organic" className="mt-4 p-4 border rounded-md bg-background">
+                  <ul className="space-y-2 list-disc list-inside">
+                    {diagnosis.data.solutions.organicRemedies.map((item, i) => <li key={i}>{item}</li>)}
+                  </ul>
+                </TabsContent>
+                <TabsContent value="chemical" className="mt-4 p-4 border rounded-md bg-background">
+                  <ul className="space-y-2 list-disc list-inside">
+                    {diagnosis.data.solutions.chemicalTreatments.map((item, i) => <li key={i}>{item}</li>)}
+                  </ul>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            <div>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger className="text-xl font-bold hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                      {t.prevention}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-4 border rounded-md bg-background">
+                    <ul className="space-y-2 list-disc list-inside">
+                      {diagnosis.data.prevention.map((item, i) => <li key={i}>{item}</li>)}
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+            
+            <div className="text-center mt-6">
+                <Button onClick={resetDiagnosis}>
+                    <RefreshCcw className="mr-2 h-4 w-4"/>
+                    {t.startOver}
+                </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+       {diagnosis.status === 'error' && (
+        <Card className="max-w-2xl mx-auto mt-8 border-destructive">
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl text-destructive">{t.toastErrorTitle}</CardTitle>
+                <CardDescription>{diagnosis.error}</CardDescription>
+            </CardHeader>
+             <CardContent className="flex justify-center">
+                <Button onClick={resetDiagnosis}>
+                    <RefreshCcw className="mr-2 h-4 w-4"/>
+                    Try Again
+                </Button>
+            </CardContent>
+        </Card>
+      )}
+    </section>
+  );
+}
