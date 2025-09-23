@@ -1,11 +1,14 @@
 "use client";
 
+import { useAuth } from '@/app/auth/context';
 import { useLanguage, type Language } from '@/contexts/language-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Globe, Leaf } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Globe, Leaf, LogOut } from 'lucide-react';
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -30,6 +33,12 @@ export function Header() {
               <SelectItem value="kn">ಕನ್ನಡ</SelectItem>
             </SelectContent>
           </Select>
+          {user && (
+            <Button variant="ghost" size="icon" onClick={signOut}>
+              <LogOut className="h-5 w-5" />
+              <span className="sr-only">Logout</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

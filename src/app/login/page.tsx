@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -7,15 +6,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Leaf, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("pranavvenkat2005@gmail.com");
-  const [password, setPassword] = useState("pranav2005");
+  const [signInEmail, setSignInEmail] = useState("pranavvenkat2005@gmail.com");
+  const [signInPassword, setSignInPassword] = useState("pranav2005");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -23,7 +25,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(signInEmail, signInPassword);
       router.push("/");
     } catch (error) {
       console.error(error);
@@ -32,7 +34,36 @@ export default function LoginPage() {
         title: "Authentication Failed",
         description: "Please check your email and password.",
       });
-      setIsLoading(false);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await signUp(signUpEmail, signUpPassword);
+      router.push("/");
+       toast({
+        title: "Account Created",
+        description: "You have been successfully signed up.",
+      });
+    } catch (error: any) {
+      console.error(error);
+      let description = "An error occurred during sign up.";
+      if (error.code === 'auth/email-already-in-use') {
+        description = "This email is already in use. Please sign in.";
+      } else if (error.code === 'auth/weak-password') {
+        description = "The password is too weak. Please choose a stronger password.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Sign Up Failed",
+        description: description,
+      });
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -44,36 +75,78 @@ export default function LoginPage() {
             <Leaf className="h-10 w-10 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold">FarmFriend</CardTitle>
-          <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+          <CardDescription>Your all-in-one farming companion</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
-            </Button>
-          </form>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <Input 
+                    id="signin-password" 
+                    type="password"
+                    value={signInPassword}
+                    onChange={(e) => setSignInPassword(e.target.value)} 
+                    required 
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Sign In
+                </Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input 
+                    id="signup-password" 
+                    type="password"
+                    placeholder="Create a password"
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)} 
+                    required 
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Sign Up
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
         <CardFooter>
             <p className="text-xs text-center text-muted-foreground w-full">

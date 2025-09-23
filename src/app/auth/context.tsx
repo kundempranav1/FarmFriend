@@ -1,8 +1,7 @@
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
 
@@ -10,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -33,6 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
+  const signUp = async (email: string, password: string) => {
+    await createUserWithEmailAndPassword(auth, email, password);
+  };
+
   const signOutUser = async () => {
     await signOut(auth);
     router.push('/login');
@@ -42,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     loading,
     signIn,
+    signUp,
     signOut: signOutUser,
   };
 
