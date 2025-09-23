@@ -1,7 +1,9 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import {LanguageProvider} from '@/contexts/language-context';
 import {Toaster} from '@/components/ui/toaster';
+import { AuthProvider } from '@/app/auth/context';
 
 export const metadata: Metadata = {
   title: 'FarmFriend',
@@ -25,8 +27,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background">
         <LanguageProvider>
-          {children}
-          <Toaster />
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>
