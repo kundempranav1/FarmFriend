@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/language-context';
 import { MessageSquare, PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 
 const forumQuestions = [
   { id: 1, textKey: 'q1', replies: 5 },
@@ -27,10 +28,12 @@ export function KnowledgeHub() {
 
       <div className="max-w-2xl mx-auto mt-8 space-y-6">
         <div className="text-center">
-          <Button size="lg">
-            <PlusCircle className="mr-2 h-5 w-5" />
-            {t.askQuestion}
-          </Button>
+          <Link href="/ask-question" passHref>
+            <Button size="lg">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              {t.askQuestion}
+            </Button>
+          </Link>
         </div>
 
         <div className="space-y-4">
