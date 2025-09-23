@@ -66,7 +66,7 @@ export function Chatbot() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <div className={cn("relative transition-all duration-300", isOpen ? "opacity-100" : "opacity-0 pointer-events-none")}>
+      <div className={cn("relative transition-opacity duration-300", isOpen ? "opacity-100" : "opacity-0 pointer-events-none")}>
          <Card className="w-[350px] h-[500px] shadow-2xl flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between border-b p-4">
                 <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export function Chatbot() {
 
       <Button 
         size="icon" 
-        className={cn("rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-110 transition-all duration-300", isOpen ? "opacity-0 scale-0" : "opacity-100 scale-100")} 
+        className={cn("rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-all duration-300", isOpen ? "opacity-0 scale-0 pointer-events-none" : "opacity-100 scale-100")} 
         onClick={() => setIsOpen(true)}>
         <Bot className="h-8 w-8" />
       </Button>
