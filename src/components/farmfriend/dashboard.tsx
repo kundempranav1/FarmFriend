@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLanguage } from '@/contexts/language-context';
-import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const weatherData = {
   current: { temp: 28, humidity: 75, wind: 12, icon: Sun, alert: true },
@@ -76,6 +77,14 @@ export function SmartDashboard() {
                 <span className="text-sm font-medium">{t.severeWeather}</span>
               </div>
             )}
+             <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2"><Leaf className="text-primary"/>{t.cropAdvisory}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">{t.sowingTips}</p>
+              </CardContent>
+            </Card>
             <div className="flex justify-between text-center">
               {weatherData.forecast.map(day => (
                 <div key={day.day} className="flex flex-col items-center gap-1">
@@ -91,9 +100,9 @@ export function SmartDashboard() {
         {/* Market Prices Card */}
         <Card className="flex flex-col">
           <CardHeader>
-            <CardTitle>{t.marketPricesCardTitle}</CardTitle>
+            <CardTitle className="flex items-center gap-2"><LineChart className="text-primary"/>{t.marketPricesCardTitle}</CardTitle>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="flex-grow flex flex-col">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -117,13 +126,18 @@ export function SmartDashboard() {
                 ))}
               </TableBody>
             </Table>
+            <div className="mt-auto pt-4">
+              <Button className="w-full">
+                <ShoppingCart className="mr-2 h-4 w-4" /> {t.sellOnline}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Soil Card */}
         <Card className="flex flex-col">
           <CardHeader>
-            <CardTitle>{t.soilCardTitle}</CardTitle>
+            <CardTitle className="flex items-center gap-2"><TestTube2 className="text-primary"/>{t.soilCardTitle}</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow space-y-6">
             <div className="space-y-2">
