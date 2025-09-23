@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Camera, RefreshCcw, Leaf, TestTube2, AlertTriangle, Loader2, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { diagnoseCropProblem, type DiagnoseCropProblemOutput } from '@/ai/flows/diagnose-crop-problem';
-import htmlToDocx from 'html-to-docx';
+import { generateDocx } from '@/app/actions/download-report';
 
 
 const formSchema = z.object({
@@ -157,19 +157,22 @@ export function CropDoctor() {
       </html>
     `;
 
-    const fileBuffer = await htmlToDocx(reportHtml, undefined, {
-      table: { row: { cantSplit: true } },
-      footer: true,
-      pageNumber: true,
-    });
-
-    const blob = new Blob([fileBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'FarmFriend_Crop_Diagnosis_Report.docx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const base64File = await generateDocx(reportHtml);
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64File}`;
+      link.download = 'FarmFriend_Crop_Diagnosis_Report.docx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error generating document:", error);
+      toast({
+        variant: "destructive",
+        title: "Download Failed",
+        description: "Could not generate the report. Please try again.",
+      });
+    }
   };
 
   return (
