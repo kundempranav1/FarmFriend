@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from 'next/link';
 import { useLanguage } from "@/contexts/language-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,11 @@ export function Marketplace() {
               <CardDescription>{t.marketplace[item.descriptionKey as keyof typeof t.marketplace]}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">
-                <ShoppingCart className="mr-2 h-4 w-4" /> {t.browseProducts}
-              </Button>
+              <Link href="/browse-products" passHref>
+                <Button className="w-full">
+                  <ShoppingCart className="mr-2 h-4 w-4" /> {t.browseProducts}
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         ))}

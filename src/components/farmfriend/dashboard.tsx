@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -127,9 +128,11 @@ export function SmartDashboard() {
               </TableBody>
             </Table>
             <div className="mt-auto pt-4">
-              <Button className="w-full">
-                <ShoppingCart className="mr-2 h-4 w-4" /> {t.sellOnline}
-              </Button>
+              <Link href="/sell-crops" passHref>
+                <Button className="w-full">
+                  <ShoppingCart className="mr-2 h-4 w-4" /> {t.sellOnline}
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

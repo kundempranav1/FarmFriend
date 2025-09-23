@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { useLanguage } from "@/contexts/language-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,9 @@ export function FinancialServices() {
             <CardDescription>{t.farmLoansDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">{t.applyForLoan}</Button>
+            <Link href="/apply-loan" passHref>
+                <Button className="w-full">{t.applyForLoan}</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -35,7 +38,9 @@ export function FinancialServices() {
             <CardDescription>{t.subsidiesDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">{t.viewSubsidies}</Button>
+            <Link href="/view-subsidies" passHref>
+                <Button className="w-full">{t.viewSubsidies}</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -44,7 +49,9 @@ export function FinancialServices() {
             <CardDescription>{t.cropInsuranceDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">{t.getInsurance}</Button>
+            <Link href="/get-insurance" passHref>
+                <Button className="w-full">{t.getInsurance}</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
