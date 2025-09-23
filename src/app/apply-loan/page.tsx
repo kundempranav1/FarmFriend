@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/auth/context';
 import { Header } from '@/components/farmfriend/header';
@@ -11,16 +11,77 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { db } from '@/app/firebase/config';
+import { collection, addDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+
 
 export default function ApplyLoanPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+
+  const [loanAmount, setLoanAmount] = useState('');
+  const [loanPurpose, setLoanPurpose] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loanAmount || !loanPurpose) {
+        toast({
+            variant: "destructive",
+            title: "Missing Information",
+            description: "Please fill out all the fields.",
+        });
+        return;
+    }
+
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Authenticated",
+            description: "You must be logged in to apply for a loan.",
+        });
+        return;
+    }
+
+    setIsSubmitting(true);
+    try {
+        await addDoc(collection(db, "loanApplications"), {
+            userId: user.uid,
+            email: user.email,
+            loanAmount: Number(loanAmount),
+            loanPurpose: loanPurpose,
+            status: 'pending',
+            submittedAt: new Date(),
+        });
+
+        toast({
+            title: "Application Submitted",
+            description: "Your loan application has been successfully submitted.",
+        });
+
+        // Clear the form
+        setLoanAmount('');
+        setLoanPurpose('');
+
+    } catch (error) {
+        console.error("Error submitting loan application: ", error);
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: "There was an error submitting your application. Please try again.",
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
+  }
 
   if (loading || !user) {
     return (
@@ -45,20 +106,38 @@ export default function ApplyLoanPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="loan-amount">Loan Amount (in ₹)</Label>
-                        <Input id="loan-amount" type="number" placeholder="e.g., 50000" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="loan-purpose">Purpose of Loan</Label>
-                        <Textarea id="loan-purpose" placeholder="e.g., Buying seeds, new equipment, etc." />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="document-upload">Upload Documents (Aadhaar, Land Papers)</Label>
-                        <Input id="document-upload" type="file" multiple />
-                    </div>
-                    <Button size="lg" className="w-full">Submit Loan Application</Button>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="loan-amount">Loan Amount (in ₹)</Label>
+                            <Input 
+                                id="loan-amount" 
+                                type="number" 
+                                placeholder="e.g., 50000"
+                                value={loanAmount}
+                                onChange={(e) => setLoanAmount(e.target.value)}
+                                disabled={isSubmitting}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="loan-purpose">Purpose of Loan</Label>
+                            <Textarea 
+                                id="loan-purpose" 
+                                placeholder="e.g., Buying seeds, new equipment, etc."
+                                value={loanPurpose}
+                                onChange={(e) => setLoanPurpose(e.target.value)}
+                                disabled={isSubmitting}
+                             />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="document-upload">Upload Documents (Aadhaar, Land Papers)</Label>
+                            <Input id="document-upload" type="file" multiple disabled={isSubmitting}/>
+                        </div>
+                        <Button size="lg" className="w-full" type="submit" disabled={isSubmitting}>
+                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                             {isSubmitting ? 'Submitting...' : 'Submit Loan Application'}
+                        </Button>
+                    </form>
                 </CardContent>
             </Card>
         </div>
