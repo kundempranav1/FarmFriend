@@ -4,6 +4,7 @@ import './globals.css';
 import {LanguageProvider} from '@/contexts/language-context';
 import {Toaster} from '@/components/ui/toaster';
 import { AuthProvider } from '@/app/auth/context';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'FarmFriend',
@@ -26,12 +27,19 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased bg-background">
-        <LanguageProvider>
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </LanguageProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
