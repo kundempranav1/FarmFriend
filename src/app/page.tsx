@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/auth/context';
 import { Header } from '@/components/farmfriend/header';
 import { CropDoctor } from '@/components/farmfriend/crop-doctor';
@@ -9,27 +7,11 @@ import { SmartDashboard } from '@/components/farmfriend/dashboard';
 import { KnowledgeHub } from '@/components/farmfriend/knowledge-hub';
 import { Chatbot } from '@/components/farmfriend/chatbot';
 import { Footer } from '@/components/farmfriend/footer';
-import { Loader2 } from 'lucide-react';
 import { Marketplace } from '@/components/farmfriend/marketplace';
 import { FinancialServices } from '@/components/farmfriend/financial-services';
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -46,7 +28,7 @@ export default function Home() {
         </div>
       </main>      
       <Footer />
-      <Chatbot />
+      { user && <Chatbot /> }
     </div>
   );
 }
