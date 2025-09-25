@@ -1,8 +1,9 @@
+
 "use client";
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/app/auth/context';
+import { useAuth } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { Footer } from '@/components/farmfriend/footer';
 import { Loader2, ShoppingCart } from 'lucide-react';
@@ -10,24 +11,99 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 export default function SellCropsPage() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+  const [cropName, setCropName] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [price, setPrice] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (loading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cropName || !quantity || !price) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill out all the fields.",
+      });
+      return;
+    }
+
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Authenticated",
+            description: "You must be logged in to sell crops.",
+        });
+        return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+        const cropData = {
+            userId: user.uid,
+            cropName,
+            quantity: Number(quantity),
+            price: Number(price),
+            status: 'available',
+            listedAt: serverTimestamp(),
+            // Image URL will be added after upload
+        };
+
+        const docRef = await addDocumentNonBlocking(collection(firestore, 'cropsForSale'), cropData);
+
+        // For now, we are not handling image uploads as it requires Firebase Storage setup.
+        // We will just show a success message.
+
+        toast({
+            title: "Success!",
+            description: `${cropName} has been listed for sale.`,
+        });
+
+        // Reset form
+        setCropName('');
+        setQuantity('');
+        setPrice('');
+        setImageFile(null);
+        // Maybe redirect user
+        router.push('/browse-products');
+
+    } catch (error) {
+        console.error("Error listing crop: ", error);
+        toast({
+            variant: "destructive",
+            title: "Listing Failed",
+            description: "There was an error listing your crop. Please try again.",
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -44,24 +120,54 @@ export default function SellCropsPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="crop-name">Crop Name</Label>
-                        <Input id="crop-name" placeholder="e.g., Tomatoes" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="quantity">Quantity (in kg)</Label>
-                        <Input id="quantity" type="number" placeholder="e.g., 100" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Expected Price (per kg)</Label>
-                        <Input id="price" type="number" placeholder="e.g., 25" />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="crop-image">Upload Image</Label>
-                        <Input id="crop-image" type="file" />
-                    </div>
-                    <Button size="lg" className="w-full">List Crop for Sale</Button>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                          <Label htmlFor="crop-name">Crop Name</Label>
+                          <Input 
+                            id="crop-name" 
+                            placeholder="e.g., Tomatoes" 
+                            value={cropName}
+                            onChange={(e) => setCropName(e.target.value)}
+                            disabled={isSubmitting}
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="quantity">Quantity (in kg)</Label>
+                          <Input 
+                            id="quantity" 
+                            type="number" 
+                            placeholder="e.g., 100" 
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            disabled={isSubmitting}
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="price">Expected Price (per kg)</Label>
+                          <Input 
+                            id="price" 
+                            type="number" 
+                            placeholder="e.g., 25" 
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                            disabled={isSubmitting}
+                          />
+                      </div>
+                       <div className="space-y-2">
+                          <Label htmlFor="crop-image">Upload Image</Label>
+                          <Input 
+                            id="crop-image" 
+                            type="file" 
+                            onChange={handleImageChange}
+                            disabled={isSubmitting}
+                          />
+                      </div>
+                      <Button size="lg" className="w-full" type="submit" disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isSubmitting ? 'Listing...' : 'List Crop for Sale'}
+                      </Button>
+                  </form>
                 </CardContent>
             </Card>
         </div>

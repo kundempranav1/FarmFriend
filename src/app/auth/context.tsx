@@ -17,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, isUserLoading, userError } = useUser();
+  const { user, isUserLoading } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
 

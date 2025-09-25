@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -19,6 +20,45 @@
         "id",
         "language"
       ]
+    },
+    "CropForSale": {
+      "title": "Crop For Sale",
+      "description": "Represents a crop listed for sale by a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who listed the crop."
+        },
+        "cropName": {
+          "type": "string",
+          "description": "The name of the crop being sold."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the crop available for sale (in kg)."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price per unit (e.g., per kg)."
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the crop's image."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["available", "sold"],
+          "description": "The current status of the listing."
+        },
+        "listedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the crop was listed."
+        }
+      },
+      "required": ["userId", "cropName", "quantity", "price", "status", "listedAt"]
     },
     "CropDiagnosis": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -307,6 +347,22 @@
         }
       },
       {
+        "path": "/cropsForSale/{cropForSaleId}",
+        "definition": {
+            "entityName": "CropForSale",
+            "schema": {
+                "$ref": "#/entities/CropForSale"
+            },
+            "description": "Top-level collection for all crops listed for sale.",
+            "params": [
+                {
+                    "name": "cropForSaleId",
+                    "description": "The unique identifier for the crop listing."
+                }
+            ]
+        }
+      },
+      {
         "path": "/users/{userId}/cropDiagnoses/{cropDiagnosisId}",
         "definition": {
           "entityName": "CropDiagnosis",
@@ -419,6 +475,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the FarmFriend application. User-owned data (CropDiagnoses, SoilConditions, ForumPosts, and ForumReplies) is structured under the `/users/{userId}` path to simplify ownership-based security rules. This approach leverages hierarchical paths for user-owned data, enabling secure and efficient data management.\n\nAuthorization Independence is achieved through this hierarchical structure, avoiding the need for `get()` calls in security rules.  Each subcollection's documents inherit implicit authorization based on their location within the `/users/{userId}` path.\n\nQAPs (Rules are not Filters) are supported through structural segregation. Private user data is stored under the `/users/{userId}` collection, while global data like `WeatherForecast` and `MarketPrice` are stored in separate collections, each with its own security rules. This prevents mixing data with different access needs within the same collection.\n\nThe structure employs consistent naming conventions for fields like `userId` and `id` to ensure predictability and maintainability. The explicit modeling of user-owned data and global data further enhances clarity and simplifies security rule definitions."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the FarmFriend application. User-owned data (CropDiagnoses, SoilConditions, ForumPosts, and ForumReplies) is structured under the `/users/{userId}` path to simplify ownership-based security rules. This approach leverages hierarchical paths for user-owned data, enabling secure and efficient data management. A new top-level collection `cropsForSale` is added to manage all crop listings centrally, which simplifies querying for all available crops across different users.\n\nAuthorization Independence is achieved through this hierarchical structure, avoiding the need for `get()` calls in security rules.  Each subcollection's documents inherit implicit authorization based on their location within the `/users/{userId}` path.\n\nQAPs (Rules are not Filters) are supported through structural segregation. Private user data is stored under the `/users/{userId}` collection, while global data like `WeatherForecast`, `MarketPrice`, and `cropsForSale` are stored in separate collections, each with its own security rules. This prevents mixing data with different access needs within the same collection.\n\nThe structure employs consistent naming conventions for fields like `userId` and `id` to ensure predictability and maintainability. The explicit modeling of user-owned data and global data further enhances clarity and simplifies security rule definitions."
   }
 }
