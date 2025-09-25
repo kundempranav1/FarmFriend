@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/app/auth/context';
+import { useUser } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { Footer } from '@/components/farmfriend/footer';
 import { IndianRupee, Loader2 } from 'lucide-react';
@@ -16,16 +16,16 @@ const subsidies = [
 ];
 
 export default function ViewSubsidiesPage() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, isUserLoading, router]);
 
-  if (loading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

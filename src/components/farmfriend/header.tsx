@@ -6,12 +6,12 @@ import { useLanguage, type Language } from '@/contexts/language-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Globe, Leaf } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
-import { useAuth } from '@/app/auth/context';
+import { useUser } from '@/firebase';
 import { Button } from '../ui/button';
 
 export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: boolean }) {
   const { language, setLanguage, t } = useLanguage();
-  const { user } = useAuth();
+  const { user } = useUser();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -40,7 +40,7 @@ export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: bo
             </SelectContent>
           </Select>
           {!user && (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>

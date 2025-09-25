@@ -4,7 +4,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useAuth as useFirebaseAuth, useUser } from '@/firebase';
+import { useAuth as useFirebaseAuth, useUser as useFirebaseUser } from '@/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading } = useFirebaseUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
 

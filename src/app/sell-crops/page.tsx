@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
+import { useUser } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { Footer } from '@/components/farmfriend/footer';
 import { Loader2, ShoppingCart } from 'lucide-react';
@@ -17,7 +17,7 @@ import { collection, serverTimestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 export default function SellCropsPage() {
-  const { user, isUserLoading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -27,6 +27,12 @@ export default function SellCropsPage() {
   const [price, setPrice] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
 
   if (isUserLoading || !user) {
     return (

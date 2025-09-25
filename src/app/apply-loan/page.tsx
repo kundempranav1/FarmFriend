@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/app/auth/context';
+import { useUser, useFirestore } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { Footer } from '@/components/farmfriend/footer';
 import { Landmark, Loader2 } from 'lucide-react';
@@ -11,14 +11,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { db } from '@/app/firebase/config';
 import { collection, addDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 export default function ApplyLoanPage() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
   const [loanAmount, setLoanAmount] = useState('');
@@ -26,10 +27,10 @@ export default function ApplyLoanPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, isUserLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +54,7 @@ export default function ApplyLoanPage() {
 
     setIsSubmitting(true);
     try {
-        await addDoc(collection(db, "loanApplications"), {
+        await addDocumentNonBlocking(collection(firestore, "loanApplications"), {
             userId: user.uid,
             email: user.email,
             loanAmount: Number(loanAmount),
@@ -83,7 +84,7 @@ export default function ApplyLoanPage() {
     }
   }
 
-  if (loading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

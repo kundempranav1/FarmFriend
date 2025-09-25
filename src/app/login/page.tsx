@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/app/auth/context";
+import { useUser, useAuth } from "@/firebase";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Leaf, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { initiateEmailSignIn, initiateEmailSignUp } from "@/firebase/non-blocking-login";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
   const [signInEmail, setSignInEmail] = useState("pranavvenkat2005@gmail.com");
@@ -18,22 +20,23 @@ export default function LoginPage() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!isUserLoading && user) {
       router.push("/");
     }
-  }, [user, loading, router]);
+  }, [user, isUserLoading, router]);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signIn(signInEmail, signInPassword);
+      await signInWithEmailAndPassword(auth, signInEmail, signInPassword);
       router.push("/");
     } catch (error) {
       console.error(error);
@@ -51,7 +54,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signUp(signUpEmail, signUpPassword);
+      await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
        toast({
         title: "Account Created",
         description: "You have been successfully signed up. Redirecting...",
@@ -75,7 +78,7 @@ export default function LoginPage() {
     }
   };
   
-  if (loading || user) {
+  if (isUserLoading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

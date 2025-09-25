@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useAuth } from '@/app/auth/context';
+import { useUser, useAuth } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { CropDoctor } from '@/components/farmfriend/crop-doctor';
 import { SmartDashboard } from '@/components/farmfriend/dashboard';
@@ -17,15 +17,17 @@ import { User, Palette, Puzzle, LogIn, LogOut, Leaf } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { signOut } from 'firebase/auth';
 
 function PageContent() {
-  const { user, signOut } = useAuth();
+  const { user } = useUser();
+  const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
   const { setOpenMobile } = useSidebar();
 
   const handleSignOut = () => {
-    signOut();
+    signOut(auth);
     setOpenMobile(false);
   }
 
