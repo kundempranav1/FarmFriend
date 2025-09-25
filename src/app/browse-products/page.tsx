@@ -1,28 +1,32 @@
+
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { Header } from '@/components/farmfriend/header';
 import { Footer } from '@/components/farmfriend/footer';
-import { Loader2, Search, ShoppingCart } from 'lucide-react';
+import { Loader2, Search, ShoppingCart, Leaf } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { collection, query } from 'firebase/firestore';
+import type { CropForSale } from '@/types';
 
-const products = [
-  { name: 'Hybrid Tomato Seeds', price: '₹150', image: 'https://picsum.photos/seed/p-seeds/400/300' },
-  { name: 'Organic Fertilizer (5kg)', price: '₹450', image: 'https://picsum.photos/seed/p-fertilizer/400/300' },
-  { name: 'Power Sprayer', price: '₹3,500', image: 'https://picsum.photos/seed/p-tools/400/300' },
-  { name: 'Neem Oil Pesticide', price: '₹250', image: 'https://picsum.photos/seed/p-pesticide/400/300' },
-  { name: 'Modern Hoe', price: '₹800', image: 'https://picsum.photos/seed/p-hoe/400/300' },
-  { name: 'High-Yield Wheat Seeds', price: '₹220', image: 'https://picsum.photos/seed/p-wheat/400/300' },
-];
 
 export default function BrowseProductsPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
+
+  const cropsForSaleQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, "cropsForSale"));
+  }, [firestore]);
+
+  const { data: products, isLoading: isLoadingProducts } = useCollection<CropForSale>(cropsForSaleQuery);
+
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -57,24 +61,47 @@ export default function BrowseProductsPage() {
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map(product => (
-                  <Card key={product.name}>
-                    <CardHeader className="p-0">
-                      <div className="relative h-48 w-full">
-                        <Image src={product.image} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg" />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4 space-y-2">
-                        <CardTitle className="text-lg">{product.name}</CardTitle>
-                        <CardDescription className="text-xl font-bold text-primary">{product.price}</CardDescription>
-                        <Button className="w-full">
-                            <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-                        </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
+            {isLoadingProducts && (
+                <div className="flex justify-center items-center h-64">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                </div>
+            )}
+            
+            {!isLoadingProducts && products && products.length > 0 && (
+                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {products.map(product => (
+                      <Card key={product.id}>
+                        <CardHeader className="p-0">
+                          <div className="relative h-48 w-full">
+                            <Image 
+                                src={`https://picsum.photos/seed/${product.id}/400/300`} 
+                                alt={product.cropName} 
+                                layout="fill" 
+                                objectFit="cover" 
+                                className="rounded-t-lg" 
+                            />
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-2">
+                            <CardTitle className="text-lg">{product.cropName}</CardTitle>
+                            <CardDescription className="text-xl font-bold text-primary">₹{product.price}/kg</CardDescription>
+                            <p className="text-sm text-muted-foreground">Available: {product.quantity} kg</p>
+                            <Button className="w-full">
+                                <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+                            </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+            )}
+
+            {!isLoadingProducts && (!products || products.length === 0) && (
+                <div className="text-center py-16">
+                    <Leaf className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">No Crops for Sale Yet</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">Check back later or be the first to list a crop!</p>
+                </div>
+            )}
         </div>
       </main>
       <Footer />
