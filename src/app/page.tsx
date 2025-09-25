@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useAuth } from '@/app/auth/context';
@@ -15,7 +16,6 @@ import { useTheme } from 'next-themes';
 import { User, Palette, Puzzle, LogIn, LogOut } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function Home() {

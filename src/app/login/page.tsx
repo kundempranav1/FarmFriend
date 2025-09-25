@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,15 +18,15 @@ export default function LoginPage() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, loading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
+    if (!loading && user) {
       router.push("/");
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -51,11 +52,11 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signUp(signUpEmail, signUpPassword);
-      router.push("/");
        toast({
         title: "Account Created",
-        description: "You have been successfully signed up.",
+        description: "You have been successfully signed up. Redirecting...",
       });
+      router.push("/");
     } catch (error: any) {
       console.error(error);
       let description = "An error occurred during sign up.";
@@ -74,7 +75,7 @@ export default function LoginPage() {
     }
   };
   
-  if (user) {
+  if (loading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
