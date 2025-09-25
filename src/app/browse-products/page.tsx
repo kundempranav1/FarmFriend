@@ -40,7 +40,7 @@ export default function BrowseProductsPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header showSidebarTrigger={false} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
             <div className="text-center mb-12">

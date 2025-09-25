@@ -6,14 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Globe, Leaf } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
 
-export function Header() {
+export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: boolean }) {
   const { language, setLanguage, t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden"/>
+            {showSidebarTrigger && <SidebarTrigger className="md:hidden"/>}
             <Link href="/" className="flex items-center gap-2 sm:hidden">
                 <Leaf className="h-8 w-8 text-primary" />
                 <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline hidden sm:block">

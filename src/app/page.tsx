@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useAuth } from '@/app/auth/context';
@@ -92,7 +91,7 @@ export default function Home() {
             </SidebarHeader>
         </Sidebar>
         <SidebarInset>
-          <Header />
+          <Header showSidebarTrigger={true} />
           <main className="flex-1">
             <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
               <div className="grid gap-12 md:gap-16 lg:gap-20">
