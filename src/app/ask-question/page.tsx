@@ -32,7 +32,7 @@ export default function AskQuestionPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header showSidebarTrigger={false} />
+      <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
             <Card className="w-full max-w-2xl mx-auto">

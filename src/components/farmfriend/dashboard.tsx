@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useLanguage } from '@/contexts/language-context';
 import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const marketData = [
   { crop: 'Tomatoes', price: '₹25/kg', trend: 'up' },
@@ -48,8 +49,8 @@ export function SmartDashboard() {
         setLoadingWeather(true);
         setWeatherError(null);
         const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-        if (!apiKey || typeof apiKey !== 'string') {
-          setWeatherError("OpenWeather API key is not set. Please add `NEXT_PUBLIC_OPENWEATHER_API_KEY=your_key` to the .env file.");
+        if (!apiKey || typeof apiKey !== 'string' || apiKey === 'your_key') {
+          setWeatherError("An OpenWeather API key is required. Please add `NEXT_PUBLIC_OPENWEATHER_API_KEY=your_key` to your .env file to enable the weather feature.");
           setLoadingWeather(false);
           return;
         }
@@ -81,7 +82,7 @@ export function SmartDashboard() {
       } catch (error: any) {
         console.error("Failed to fetch weather data:", error);
         if (error.response?.status === 401) {
-            setWeatherError("Invalid OpenWeather API key. Please check your .env file.");
+            setWeatherError("Invalid OpenWeather API key. Please check your .env file and ensure the key is correct.");
         } else {
             setWeatherError("Could not fetch weather data. Please try again later.");
         }
@@ -134,7 +135,7 @@ export function SmartDashboard() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Cloud className="text-primary"/> {t.weatherCardTitle}</CardTitle>
-             <CardDescription>{weatherData ? weatherData.name : 'Loading location...'}</CardDescription>
+             <CardDescription>{!weatherError && (weatherData ? weatherData.name : 'Loading location...')}</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow space-y-4">
             {loadingWeather ? (
@@ -142,11 +143,13 @@ export function SmartDashboard() {
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
             ) : weatherError ? (
-                <div className="flex flex-col justify-center items-center h-full text-center p-4">
-                    <AlertCircle className="h-10 w-10 text-destructive mb-2" />
-                    <p className="text-sm font-medium text-destructive">Weather Data Error</p>
-                    <p className="text-xs text-muted-foreground">{weatherError}</p>
-                </div>
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Weather Data Unavailable</AlertTitle>
+                    <AlertDescription>
+                        {weatherError}
+                    </AlertDescription>
+                </Alert>
             ) : weatherData && forecastData ? (
               <>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
@@ -264,5 +267,3 @@ export function SmartDashboard() {
     </section>
   );
 }
-
-    
