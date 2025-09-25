@@ -48,8 +48,8 @@ export function SmartDashboard() {
         setLoadingWeather(true);
         setWeatherError(null);
         const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-        if (!apiKey) {
-          setWeatherError("OpenWeather API key is not set. Please add it to your .env file.");
+        if (!apiKey || typeof apiKey !== 'string') {
+          setWeatherError("OpenWeather API key is not set. Please add `NEXT_PUBLIC_OPENWEATHER_API_KEY=your_key` to the .env file.");
           setLoadingWeather(false);
           return;
         }
@@ -78,10 +78,14 @@ export function SmartDashboard() {
         });
 
         setForecastData(dailyForecast);
-        setLoadingWeather(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch weather data:", error);
-        setWeatherError("Could not fetch weather data. Please try again later.");
+        if (error.response?.status === 401) {
+            setWeatherError("Invalid OpenWeather API key. Please check your .env file.");
+        } else {
+            setWeatherError("Could not fetch weather data. Please try again later.");
+        }
+      } finally {
         setLoadingWeather(false);
       }
     };
@@ -93,7 +97,7 @@ export function SmartDashboard() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setWeatherError("Could not get your location. Please enable location services.");
+          setWeatherError("Could not get your location. Please enable location services in your browser.");
           setLoadingWeather(false);
         }
       );
@@ -138,9 +142,10 @@ export function SmartDashboard() {
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
             ) : weatherError ? (
-                <div className="flex flex-col justify-center items-center h-full text-center">
+                <div className="flex flex-col justify-center items-center h-full text-center p-4">
                     <AlertCircle className="h-10 w-10 text-destructive mb-2" />
-                    <p className="text-sm text-destructive">{weatherError}</p>
+                    <p className="text-sm font-medium text-destructive">Weather Data Error</p>
+                    <p className="text-xs text-muted-foreground">{weatherError}</p>
                 </div>
             ) : weatherData && forecastData ? (
               <>
@@ -229,6 +234,7 @@ export function SmartDashboard() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><TestTube2 className="text-primary"/>{t.soilCardTitle}</CardTitle>
+
           </CardHeader>
           <CardContent className="flex-grow space-y-6">
             <div className="space-y-2">
