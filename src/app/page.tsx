@@ -10,10 +10,10 @@ import { Chatbot } from '@/components/farmfriend/chatbot';
 import { Footer } from '@/components/farmfriend/footer';
 import { Marketplace } from '@/components/farmfriend/marketplace';
 import { FinancialServices } from '@/components/farmfriend/financial-services';
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from '@/components/ui/sidebar';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { User, Palette, Puzzle, LogIn, LogOut } from 'lucide-react';
+import { User, Palette, Puzzle, LogIn, LogOut, Leaf } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
@@ -28,7 +28,12 @@ export default function Home() {
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader>
-            <SidebarTrigger />
+             <div className="flex items-center gap-2 p-2">
+                <Leaf className="h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline">
+                    {t.appName}
+                </h1>
+            </div>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
