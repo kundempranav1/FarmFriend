@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLanguage } from '@/contexts/language-context';
-import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf, Settings } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const weatherData = {
@@ -167,22 +167,6 @@ export function SmartDashboard() {
           </CardContent>
         </Card>
       </div>
-
-       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1 mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="text-primary"/> Settings</CardTitle>
-            <CardDescription>Manage your profile, theme, and other application settings.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/settings" passHref>
-                <Button>Go to Settings</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
     </section>
   );
 }
-
-    
