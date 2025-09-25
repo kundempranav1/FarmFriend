@@ -1,23 +1,14 @@
 "use client";
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLanguage } from '@/contexts/language-context';
-import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown, AlertTriangle, TestTube2, FlaskConical, LineChart, ShoppingCart, Leaf, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
-
-const weatherData = {
-  current: { temp: 28, humidity: 75, wind: 12, icon: Sun, alert: true },
-  forecast: [
-    { day: 'Mon', icon: Sun, temp: 29 },
-    { day: 'Tue', icon: Cloud, temp: 27 },
-    { day: 'Wed', icon: CloudRain, temp: 25 },
-    { day: 'Thu', icon: Cloud, temp: 26 },
-    { day: 'Fri', icon: Sun, temp: 30 },
-  ],
-};
 
 const marketData = [
   { crop: 'Tomatoes', price: '₹25/kg', trend: 'up' },
@@ -32,8 +23,85 @@ const soilData = {
   nitrogen: { value: 40, status: 'Low' },
 };
 
+const weatherIconMapping: { [key: string]: React.ElementType } = {
+  '01d': Sun, '01n': Sun,
+  '02d': Cloud, '02n': Cloud,
+  '03d': Cloud, '03n': Cloud,
+  '04d': Cloud, '04n': Cloud,
+  '09d': CloudRain, '09n': CloudRain,
+  '10d': CloudRain, '10n': CloudRain,
+  '11d': CloudRain, '11n': CloudRain,
+  '13d': Cloud, '13n': Cloud,
+  '50d': Cloud, '50n': Cloud,
+};
+
 export function SmartDashboard() {
   const { t } = useLanguage();
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [forecastData, setForecastData] = useState<any>(null);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWeatherData = async (lat: number, lon: number) => {
+      try {
+        setLoadingWeather(true);
+        setWeatherError(null);
+        const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+        if (!apiKey) {
+          setWeatherError("OpenWeather API key is not set. Please add it to your .env file.");
+          setLoadingWeather(false);
+          return;
+        }
+        
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+        const [weatherResponse, forecastResponse] = await Promise.all([
+          axios.get(weatherUrl),
+          axios.get(forecastUrl)
+        ]);
+
+        setWeatherData(weatherResponse.data);
+
+        // Process forecast to get one entry per day
+        const dailyForecast: any[] = [];
+        const forecastList = forecastResponse.data.list;
+        const seenDays: { [key: string]: boolean } = {};
+
+        forecastList.forEach((item: any) => {
+          const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
+          if (!seenDays[day] && dailyForecast.length < 5) {
+            dailyForecast.push(item);
+            seenDays[day] = true;
+          }
+        });
+
+        setForecastData(dailyForecast);
+        setLoadingWeather(false);
+      } catch (error) {
+        console.error("Failed to fetch weather data:", error);
+        setWeatherError("Could not fetch weather data. Please try again later.");
+        setLoadingWeather(false);
+      }
+    };
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeatherData(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setWeatherError("Could not get your location. Please enable location services.");
+          setLoadingWeather(false);
+        }
+      );
+    } else {
+      setWeatherError("Geolocation is not supported by your browser.");
+      setLoadingWeather(false);
+    }
+  }, []);
 
   const getSoilStatusText = (status: string) => {
     if (status === 'Optimal') return t.optimal;
@@ -42,6 +110,9 @@ export function SmartDashboard() {
     if (status === 'High') return t.high;
     return status;
   }
+  
+  const CurrentWeatherIcon = weatherData ? weatherIconMapping[weatherData.weather[0].icon] || Cloud : Cloud;
+
 
   return (
     <section id="dashboard" className="w-full">
@@ -59,42 +130,59 @@ export function SmartDashboard() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Cloud className="text-primary"/> {t.weatherCardTitle}</CardTitle>
+             <CardDescription>{weatherData ? weatherData.name : 'Loading location...'}</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow space-y-4">
-            <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
-              <div>
-                <p className="text-sm text-muted-foreground">{t.temperature}</p>
-                <p className="text-4xl font-bold">{weatherData.current.temp}°C</p>
-              </div>
-              <weatherData.current.icon className="w-16 h-16 text-yellow-400" />
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2"><Droplets className="text-blue-400"/><span>{t.humidity}: {weatherData.current.humidity}%</span></div>
-                <div className="flex items-center gap-2"><Wind className="text-gray-400"/><span>{t.windSpeed}: {weatherData.current.wind} km/h</span></div>
-            </div>
-            {weatherData.current.alert && (
-              <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
-                <AlertTriangle className="h-5 w-5"/>
-                <span className="text-sm font-medium">{t.severeWeather}</span>
-              </div>
-            )}
-             <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2"><Leaf className="text-primary"/>{t.cropAdvisory}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{t.sowingTips}</p>
-              </CardContent>
-            </Card>
-            <div className="flex justify-between text-center">
-              {weatherData.forecast.map(day => (
-                <div key={day.day} className="flex flex-col items-center gap-1">
-                  <span className="text-sm font-medium">{day.day}</span>
-                  <day.icon className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm">{day.temp}°</span>
+            {loadingWeather ? (
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
-              ))}
-            </div>
+            ) : weatherError ? (
+                <div className="flex flex-col justify-center items-center h-full text-center">
+                    <AlertCircle className="h-10 w-10 text-destructive mb-2" />
+                    <p className="text-sm text-destructive">{weatherError}</p>
+                </div>
+            ) : weatherData && forecastData ? (
+              <>
+                <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t.temperature}</p>
+                    <p className="text-4xl font-bold">{Math.round(weatherData.main.temp)}°C</p>
+                  </div>
+                  <CurrentWeatherIcon className="w-16 h-16 text-yellow-400" />
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2"><Droplets className="text-blue-400"/><span>{t.humidity}: {weatherData.main.humidity}%</span></div>
+                    <div className="flex items-center gap-2"><Wind className="text-gray-400"/><span>{t.windSpeed}: {weatherData.wind.speed.toFixed(1)} km/h</span></div>
+                </div>
+                {weatherData.weather[0].main === 'Rain' && (
+                  <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
+                    <AlertTriangle className="h-5 w-5"/>
+                    <span className="text-sm font-medium">{t.severeWeather}</span>
+                  </div>
+                )}
+                 <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2"><Leaf className="text-primary"/>{t.cropAdvisory}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{t.sowingTips}</p>
+                  </CardContent>
+                </Card>
+                <div className="flex justify-between text-center">
+                  {forecastData.map((day: any) => {
+                      const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
+                      return (
+                        <div key={day.dt} className="flex flex-col items-center gap-1">
+                          <span className="text-sm font-medium">{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                          <Icon className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm">{Math.round(day.main.temp)}°</span>
+                        </div>
+                      )
+                  })}
+                </div>
+              </>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -170,3 +258,5 @@ export function SmartDashboard() {
     </section>
   );
 }
+
+    
