@@ -5,21 +5,24 @@ import { useAuth } from '@/app/auth/context';
 import { useLanguage, type Language } from '@/contexts/language-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Globe, Leaf, LogOut, LogIn } from 'lucide-react';
+import { Globe, Leaf } from 'lucide-react';
+import { SidebarTrigger } from '../ui/sidebar';
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
-  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <Leaf className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline">
-            {t.appName}
-          </h1>
-        </Link>
+        <div className="flex items-center gap-2">
+            <SidebarTrigger className="md:hidden"/>
+            <Link href="/" className="flex items-center gap-2">
+                <Leaf className="h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline hidden sm:block">
+                    {t.appName}
+                </h1>
+            </Link>
+        </div>
         <div className="flex items-center gap-4">
           <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
             <SelectTrigger className="w-auto gap-2">
@@ -34,26 +37,6 @@ export function Header() {
               <SelectItem value="kn">ಕನ್ನಡ</SelectItem>
             </SelectContent>
           </Select>
-          {user ? (
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="h-5 w-5" />
-              <span className="sr-only">Logout</span>
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-                <Button asChild variant="outline">
-                    <Link href="/login">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        Sign In
-                    </Link>
-                </Button>
-                <Button asChild>
-                    <Link href="/login">
-                        Sign Up
-                    </Link>
-                </Button>
-            </div>
-          )}
         </div>
       </div>
     </header>
