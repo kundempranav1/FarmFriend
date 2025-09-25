@@ -1,0 +1,424 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the FarmFriend application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "language": {
+          "type": "string",
+          "description": "The user's preferred language (e.g., 'en', 'hi', 'te', 'ta', 'kn')."
+        }
+      },
+      "required": [
+        "id",
+        "language"
+      ]
+    },
+    "CropDiagnosis": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CropDiagnosis",
+      "type": "object",
+      "description": "Represents a crop diagnosis performed by the AI.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the crop diagnosis."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who requested the diagnosis. (Relationship: User 1:N CropDiagnosis)"
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "URI of the uploaded image for diagnosis.",
+          "format": "uri"
+        },
+        "problem": {
+          "type": "string",
+          "description": "The identified problem (e.g., Powdery Mildew)."
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "The confidence score of the diagnosis (0-100)."
+        },
+        "organicRemedies": {
+          "type": "string",
+          "description": "Description of the organic remedies for the diagnosed issue."
+        },
+        "chemicalTreatments": {
+          "type": "string",
+          "description": "Description of the chemical treatments for the diagnosed issue."
+        },
+        "preventionTips": {
+          "type": "string",
+          "description": "Description of the prevention tips for the diagnosed issue."
+        },
+        "diagnosisDate": {
+          "type": "string",
+          "description": "The date and time of the diagnosis.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "imageUri",
+        "problem",
+        "confidenceScore",
+        "organicRemedies",
+        "chemicalTreatments",
+        "preventionTips",
+        "diagnosisDate"
+      ]
+    },
+    "WeatherForecast": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeatherForecast",
+      "type": "object",
+      "description": "Represents weather forecast data for a specific location.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the weather forecast entry."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location for which the forecast is provided (e.g., city name, coordinates)."
+        },
+        "forecastDate": {
+          "type": "string",
+          "description": "The date and time for which the forecast is valid.",
+          "format": "date-time"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "The temperature in Celsius."
+        },
+        "humidity": {
+          "type": "number",
+          "description": "The humidity percentage."
+        },
+        "windSpeed": {
+          "type": "number",
+          "description": "The wind speed in km/h."
+        },
+        "condition": {
+          "type": "string",
+          "description": "The weather condition (e.g., Sunny, Rainy, Cloudy)."
+        },
+        "severeWeatherAlert": {
+          "type": "string",
+          "description": "Description of any severe weather alerts for the location."
+        }
+      },
+      "required": [
+        "id",
+        "location",
+        "forecastDate",
+        "temperature",
+        "humidity",
+        "windSpeed",
+        "condition"
+      ]
+    },
+    "MarketPrice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MarketPrice",
+      "type": "object",
+      "description": "Represents the market price of a specific crop.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the market price entry."
+        },
+        "cropName": {
+          "type": "string",
+          "description": "The name of the crop (e.g., Tomato, Wheat)."
+        },
+        "marketName": {
+          "type": "string",
+          "description": "The name of the market where the price is recorded."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price of the crop per unit (e.g., kg, ton)."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement for the price (e.g., kg, ton)."
+        },
+        "priceTrend": {
+          "type": "string",
+          "description": "The price trend (e.g., up, down, stable)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp when the price was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "cropName",
+        "marketName",
+        "price",
+        "unit",
+        "priceTrend",
+        "timestamp"
+      ]
+    },
+    "SoilCondition": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SoilCondition",
+      "type": "object",
+      "description": "Represents soil condition data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the soil condition entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User whose soil condition is being recorded. (Relationship: User 1:N SoilCondition)"
+        },
+        "soilMoisture": {
+          "type": "number",
+          "description": "The soil moisture level (percentage)."
+        },
+        "phLevel": {
+          "type": "number",
+          "description": "The pH level of the soil."
+        },
+        "nitrogenLevel": {
+          "type": "number",
+          "description": "The nitrogen level in the soil."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp when the soil condition was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "soilMoisture",
+        "phLevel",
+        "nitrogenLevel",
+        "timestamp"
+      ]
+    },
+    "ForumPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumPost",
+      "type": "object",
+      "description": "Represents a post in the knowledge hub community forum.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the forum post."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who created the post. (Relationship: User 1:N ForumPost)"
+        },
+        "question": {
+          "type": "string",
+          "description": "The question posted by the user."
+        },
+        "postDate": {
+          "type": "string",
+          "description": "The date and time when the post was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "question",
+        "postDate"
+      ]
+    },
+    "ForumReply": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumReply",
+      "type": "object",
+      "description": "Represents a reply to a forum post.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the forum reply."
+        },
+        "postId": {
+          "type": "string",
+          "description": "Reference to the ForumPost this reply belongs to. (Relationship: ForumPost 1:N ForumReply)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who created the reply. (Relationship: User 1:N ForumReply)"
+        },
+        "replyText": {
+          "type": "string",
+          "description": "The text of the reply."
+        },
+        "replyDate": {
+          "type": "string",
+          "description": "The date and time when the reply was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "postId",
+        "userId",
+        "replyText",
+        "replyDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection for storing user profiles.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/cropDiagnoses/{cropDiagnosisId}",
+        "definition": {
+          "entityName": "CropDiagnosis",
+          "schema": {
+            "$ref": "#/backend/entities/CropDiagnosis"
+          },
+          "description": "Subcollection for storing crop diagnoses performed by the user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "cropDiagnosisId",
+              "description": "The unique identifier for the crop diagnosis."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/soilConditions/{soilConditionId}",
+        "definition": {
+          "entityName": "SoilCondition",
+          "schema": {
+            "$ref": "#/backend/entities/SoilCondition"
+          },
+          "description": "Subcollection for storing soil condition data recorded by the user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "soilConditionId",
+              "description": "The unique identifier for the soil condition."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/forumPosts/{forumPostId}",
+        "definition": {
+          "entityName": "ForumPost",
+          "schema": {
+            "$ref": "#/backend/entities/ForumPost"
+          },
+          "description": "Subcollection for storing forum posts created by the user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "forumPostId",
+              "description": "The unique identifier for the forum post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/forumPosts/{forumPostId}/forumReplies/{forumReplyId}",
+        "definition": {
+          "entityName": "ForumReply",
+          "schema": {
+            "$ref": "#/backend/entities/ForumReply"
+          },
+          "description": "Subcollection for storing forum replies to a specific post.",
+          "params": [
+            {
+              "name": "forumPostId",
+              "description": "The unique identifier for the forum post."
+            },
+            {
+              "name": "forumReplyId",
+              "description": "The unique identifier for the forum reply."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/weatherForecasts/{weatherForecastId}",
+        "definition": {
+          "entityName": "WeatherForecast",
+          "schema": {
+            "$ref": "#/backend/entities/WeatherForecast"
+          },
+          "description": "Collection for storing weather forecast data.",
+          "params": [
+            {
+              "name": "weatherForecastId",
+              "description": "The unique identifier for the weather forecast entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/marketPrices/{marketPriceId}",
+        "definition": {
+          "entityName": "MarketPrice",
+          "schema": {
+            "$ref": "#/backend/entities/MarketPrice"
+          },
+          "description": "Collection for storing market price data.",
+          "params": [
+            {
+              "name": "marketPriceId",
+              "description": "The unique identifier for the market price entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the FarmFriend application. User-owned data (CropDiagnoses, SoilConditions, ForumPosts, and ForumReplies) is structured under the `/users/{userId}` path to simplify ownership-based security rules. This approach leverages hierarchical paths for user-owned data, enabling secure and efficient data management.\n\nAuthorization Independence is achieved through this hierarchical structure, avoiding the need for `get()` calls in security rules.  Each subcollection's documents inherit implicit authorization based on their location within the `/users/{userId}` path.\n\nQAPs (Rules are not Filters) are supported through structural segregation. Private user data is stored under the `/users/{userId}` collection, while global data like `WeatherForecast` and `MarketPrice` are stored in separate collections, each with its own security rules. This prevents mixing data with different access needs within the same collection.\n\nThe structure employs consistent naming conventions for fields like `userId` and `id` to ensure predictability and maintainability. The explicit modeling of user-owned data and global data further enhances clarity and simplifies security rule definitions."
+  }
+}

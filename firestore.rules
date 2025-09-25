@@ -1,0 +1,205 @@
+/**
+ * @fileoverview Firestore Security Rules for the FarmFriend application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user-generated content
+ * (CropDiagnoses, SoilConditions, ForumPosts). Global data (WeatherForecasts,
+ * MarketPrices) is publicly readable, but write access is restricted.
+ *
+ * Data Structure:
+ * - User profiles are stored in `/users/{userId}`.
+ * - User-specific data (CropDiagnoses, SoilConditions, ForumPosts) is nested
+ *   under `/users/{userId}` in subcollections.
+ * - Forum replies are nested under /forumPosts/{forumPostId}/forumReplies/{forumReplyId}.
+ * - Weather forecasts and market prices are stored in top-level collections
+ *   (`/weatherForecasts/{weatherForecastId}`, `/marketPrices/{marketPriceId}`).
+ *
+ * Key Security Decisions:
+ * - Users can only create, update, and delete their own data.
+ * - Listing of user documents is allowed only for the owner.
+ * - Weather forecasts and market prices are publicly readable.
+ * - Write access to weather forecasts and market prices is denied.
+ *
+ * Denormalization for Authorization:
+ * The `userId` field is denormalized onto documents in the `cropDiagnoses`,
+ * `soilConditions`, and `forumPosts` subcollections to enable simple
+ * ownership checks without additional `get()` calls.
+ *
+ * Structural Segregation:
+ * User-specific data is stored under the `/users/{userId}` path, while global
+ * data like weather forecasts and market prices are stored in separate
+ * top-level collections. This prevents mixing data with different access
+ * needs within the same collection.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (create) - Authenticated user can create their own profile.
+     * @allow (get, list, update, delete) - Authenticated user can read, update, and delete their own profile.
+     * @deny (create) - Unauthenticated user can't create any profile.
+     * @deny (update, delete) - Authenticated user can't update or delete another user's profile.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    /**
+     * @description Controls access to crop diagnosis documents under a user.
+     * @path /users/{userId}/cropDiagnoses/{cropDiagnosisId}
+     * @allow (create) - Authenticated user can create a crop diagnosis under their own user ID.
+     * @allow (get, list, update, delete) - Authenticated user can read, update, and delete their own crop diagnoses.
+     * @deny (create) - Authenticated user can't create a crop diagnosis under another user's ID.
+     * @deny (update, delete) - Authenticated user can't update or delete another user's crop diagnosis.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/cropDiagnoses/{cropDiagnosisId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+       function isExistingOwner(userId) {
+        return isOwner(userId) && resource.data.userId == userId;
+      }
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+      allow delete: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * @description Controls access to soil condition documents under a user.
+     * @path /users/{userId}/soilConditions/{soilConditionId}
+     * @allow (create) - Authenticated user can create a soil condition under their own user ID.
+     * @allow (get, list, update, delete) - Authenticated user can read, update, and delete their own soil conditions.
+     * @deny (create) - Authenticated user can't create a soil condition under another user's ID.
+     * @deny (update, delete) - Authenticated user can't update or delete another user's soil condition.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/soilConditions/{soilConditionId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource.data.userId == userId;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+      allow delete: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * @description Controls access to forum post documents under a user.
+     * @path /users/{userId}/forumPosts/{forumPostId}
+     * @allow (create) - Authenticated user can create a forum post under their own user ID.
+     * @allow (get, list, update, delete) - Authenticated user can read, update, and delete their own forum posts.
+     * @deny (create) - Authenticated user can't create a forum post under another user's ID.
+     * @deny (update, delete) - Authenticated user can't update or delete another user's forum post.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/forumPosts/{forumPostId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource.data.userId == userId;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+      allow delete: if isExistingOwner(userId) && request.resource.data.userId == request.auth.uid;
+    }
+
+     /**
+     * @description Controls access to forum reply documents under a forum post.
+     * @path /forumPosts/{forumPostId}/forumReplies/{forumReplyId}
+     * @allow (create) - Authenticated user can create a forum reply under any forum post.
+     * @allow (get, list) - Any user can read/list replies.
+     * @allow (update, delete) - Authenticated user can update and delete their own forum replies.
+     * @deny (create) - Unauthenticated user can't create any forum reply.
+     * @deny (update, delete) - Authenticated user can't update or delete another user's forum reply.
+     * @principle Enforces document ownership for writes and allows public read access.
+     */
+    match /forumPosts/{forumPostId}/forumReplies/{forumReplyId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isExistingOwner(userId) {
+        return request.auth != null && request.auth.uid == resource.data.userId;
+      }
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(request.auth.uid) && request.resource.data.userId == request.auth.uid;
+      allow delete: if isExistingOwner(request.auth.uid) && request.resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * @description Controls access to weather forecast documents.
+     * @path /weatherForecasts/{weatherForecastId}
+     * @allow (get, list) - Any user can read weather forecast data.
+     * @deny (create, update, delete) - No user can create, update, or delete weather forecast data.
+     * @principle Allows public read access and restricts write access.
+     */
+    match /weatherForecasts/{weatherForecastId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Controls access to market price documents.
+     * @path /marketPrices/{marketPriceId}
+     * @allow (get, list) - Any user can read market price data.
+     * @deny (create, update, delete) - No user can create, update, or delete market price data.
+     * @principle Allows public read access and restricts write access.
+     */
+    match /marketPrices/{marketPriceId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
