@@ -30,7 +30,9 @@ function PageContent() {
   }
 
   const handleLinkClick = () => {
-    setOpenMobile(false);
+    if (setOpenMobile) {
+      setOpenMobile(false);
+    }
   }
 
   return (

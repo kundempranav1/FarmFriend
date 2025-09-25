@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -16,7 +17,7 @@ export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: bo
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
-            {showSidebarTrigger && <SidebarTrigger />}
+            {showSidebarTrigger && <div className="md:hidden"><SidebarTrigger /></div>}
             <Link href="/" className="flex items-center gap-2">
                 <Leaf className="h-8 w-8 text-primary" />
                 <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline hidden sm:block">
@@ -39,7 +40,7 @@ export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: bo
             </SelectContent>
           </Select>
           {!user && (
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 md:flex">
               <Button variant="outline" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
