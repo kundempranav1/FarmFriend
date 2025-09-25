@@ -5,6 +5,7 @@ import {LanguageProvider} from '@/contexts/language-context';
 import {Toaster} from '@/components/ui/toaster';
 import { AuthProvider } from '@/app/auth/context';
 import { ThemeProvider } from '@/components/theme-provider';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'FarmFriend',
@@ -34,10 +35,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <LanguageProvider>
-            <AuthProvider>
-              {children}
-              <Toaster />
-            </AuthProvider>
+            <FirebaseClientProvider>
+              <AuthProvider>
+                {children}
+                <Toaster />
+              </AuthProvider>
+            </FirebaseClientProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>
