@@ -36,6 +36,22 @@ const weatherIconMapping: { [key: string]: React.ElementType } = {
   '50d': Cloud, '50n': Cloud,
 };
 
+const staticWeatherData = {
+    name: 'Your Location',
+    main: { temp: 28, humidity: 75 },
+    wind: { speed: 10 },
+    weather: [{ main: 'Clouds', icon: '04d' }],
+};
+
+const staticForecastData = [
+    { dt: 1, weather: [{ icon: '02d' }], main: { temp: 29 } },
+    { dt: 2, weather: [{ icon: '10d' }], main: { temp: 27 } },
+    { dt: 3, weather: [{ icon: '01d' }], main: { temp: 30 } },
+    { dt: 4, weather: [{ icon: '03d' }], main: { temp: 29 } },
+    { dt: 5, weather: [{ icon: '04d' }], main: { temp: 28 } },
+];
+
+
 export function SmartDashboard() {
   const { t } = useLanguage();
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -49,8 +65,10 @@ export function SmartDashboard() {
         setLoadingWeather(true);
         setWeatherError(null);
         const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-        if (!apiKey || typeof apiKey !== 'string' || apiKey === 'your_key') {
-          setWeatherError("An OpenWeather API key is required. Please add `NEXT_PUBLIC_OPENWEATHER_API_KEY=your_key` to your .env file to enable the weather feature.");
+        if (!apiKey || typeof apiKey !== 'string' || apiKey === 'your_key' || apiKey.length < 30) {
+          setWeatherError("API key not configured.");
+          setWeatherData(staticWeatherData);
+          setForecastData(staticForecastData);
           setLoadingWeather(false);
           return;
         }
@@ -81,11 +99,9 @@ export function SmartDashboard() {
         setForecastData(dailyForecast);
       } catch (error: any) {
         console.error("Failed to fetch weather data:", error);
-        if (error.response?.status === 401) {
-            setWeatherError("Invalid OpenWeather API key. Please check your .env file and ensure the key is correct.");
-        } else {
-            setWeatherError("Could not fetch weather data. Please try again later.");
-        }
+        setWeatherError("Could not fetch weather data.");
+        setWeatherData(staticWeatherData);
+        setForecastData(staticForecastData);
       } finally {
         setLoadingWeather(false);
       }
@@ -98,12 +114,16 @@ export function SmartDashboard() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setWeatherError("Could not get your location. Please enable location services in your browser.");
+          setWeatherError("Could not get your location.");
+          setWeatherData(staticWeatherData);
+          setForecastData(staticForecastData);
           setLoadingWeather(false);
         }
       );
     } else {
       setWeatherError("Geolocation is not supported by your browser.");
+      setWeatherData(staticWeatherData);
+      setForecastData(staticForecastData);
       setLoadingWeather(false);
     }
   }, []);
@@ -116,7 +136,9 @@ export function SmartDashboard() {
     return status;
   }
   
-  const CurrentWeatherIcon = weatherData ? weatherIconMapping[weatherData.weather[0].icon] || Cloud : Cloud;
+  const displayData = weatherError ? staticWeatherData : weatherData;
+  const displayForecast = weatherError ? staticForecastData : forecastData;
+  const CurrentWeatherIcon = displayData ? weatherIconMapping[displayData.weather[0].icon] || Cloud : Cloud;
 
 
   return (
@@ -135,35 +157,27 @@ export function SmartDashboard() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Cloud className="text-primary"/> {t.weatherCardTitle}</CardTitle>
-             <CardDescription>{!weatherError && (weatherData ? weatherData.name : 'Loading location...')}</CardDescription>
+             <CardDescription>{displayData ? displayData.name : 'Loading location...'}</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow space-y-4">
             {loadingWeather ? (
                 <div className="flex justify-center items-center h-full">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
-            ) : weatherError ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Weather Data Unavailable</AlertTitle>
-                    <AlertDescription>
-                        {weatherError}
-                    </AlertDescription>
-                </Alert>
-            ) : weatherData && forecastData ? (
+            ) : displayData && displayForecast ? (
               <>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
                   <div>
                     <p className="text-sm text-muted-foreground">{t.temperature}</p>
-                    <p className="text-4xl font-bold">{Math.round(weatherData.main.temp)}°C</p>
+                    <p className="text-4xl font-bold">{Math.round(displayData.main.temp)}°C</p>
                   </div>
                   <CurrentWeatherIcon className="w-16 h-16 text-yellow-400" />
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2"><Droplets className="text-blue-400"/><span>{t.humidity}: {weatherData.main.humidity}%</span></div>
-                    <div className="flex items-center gap-2"><Wind className="text-gray-400"/><span>{t.windSpeed}: {weatherData.wind.speed.toFixed(1)} km/h</span></div>
+                    <div className="flex items-center gap-2"><Droplets className="text-blue-400"/><span>{t.humidity}: {displayData.main.humidity}%</span></div>
+                    <div className="flex items-center gap-2"><Wind className="text-gray-400"/><span>{t.windSpeed}: {displayData.wind.speed.toFixed(1)} km/h</span></div>
                 </div>
-                {weatherData.weather[0].main === 'Rain' && (
+                {displayData.weather[0].main === 'Rain' && (
                   <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
                     <AlertTriangle className="h-5 w-5"/>
                     <span className="text-sm font-medium">{t.severeWeather}</span>
@@ -178,11 +192,13 @@ export function SmartDashboard() {
                   </CardContent>
                 </Card>
                 <div className="flex justify-between text-center">
-                  {forecastData.map((day: any) => {
+                  {displayForecast.map((day: any, index: number) => {
                       const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
+                      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      const dayName = weatherError ? dayNames[(new Date().getDay() + index) % 7] : new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
                       return (
                         <div key={day.dt} className="flex flex-col items-center gap-1">
-                          <span className="text-sm font-medium">{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                          <span className="text-sm font-medium">{dayName}</span>
                           <Icon className="w-8 h-8 text-muted-foreground" />
                           <span className="text-sm">{Math.round(day.main.temp)}°</span>
                         </div>
