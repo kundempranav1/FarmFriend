@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { collection, addDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 export default function ApplyLoanPage() {
@@ -43,10 +42,10 @@ export default function ApplyLoanPage() {
         return;
     }
 
-    if (!user) {
+    if (!user || !firestore) {
         toast({
             variant: "destructive",
-            title: "Not Authenticated",
+            title: "Not Authenticated or Ready",
             description: "You must be logged in to apply for a loan.",
         });
         return;
@@ -54,7 +53,9 @@ export default function ApplyLoanPage() {
 
     setIsSubmitting(true);
     try {
-        await addDocumentNonBlocking(collection(firestore, "loanApplications"), {
+        const loanApplicationsCollection = collection(firestore, "loanApplications");
+        
+        await addDoc(loanApplicationsCollection, {
             userId: user.uid,
             email: user.email,
             loanAmount: Number(loanAmount),
@@ -71,14 +72,12 @@ export default function ApplyLoanPage() {
         // Clear the form
         setLoanAmount('');
         setLoanPurpose('');
+        router.push('/');
 
     } catch (error) {
         console.error("Error submitting loan application: ", error);
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: "There was an error submitting your application. Please try again.",
-        });
+        // The non-blocking update handler will emit a global error, which is caught
+        // by the FirebaseErrorListener. We don't need a specific toast here unless we want to.
     } finally {
         setIsSubmitting(false);
     }
