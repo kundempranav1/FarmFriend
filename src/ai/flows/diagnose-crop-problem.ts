@@ -61,11 +61,13 @@ const diagnoseCropProblemFlow = ai.defineFlow(
     outputSchema: DiagnoseCropProblemOutputSchema,
   },
   async input => {
-    const llmResponse = await prompt.generate(input);
-    const text = llmResponse.text();
+    const llmResponse = await prompt(input);
+    const text = llmResponse.text;
 
     try {
-      return JSON.parse(text);
+      // Sometimes the model still wraps the response in markdown, so we clean it.
+      const cleanedText = text.replace(/```json\n?/, '').replace(/```$/, '');
+      return JSON.parse(cleanedText);
     } catch (e) {
       // If the output is not a valid JSON, we will ask the model to fix it.
       const repairPrompt = ai.definePrompt({
@@ -77,7 +79,8 @@ Do not include any other text or formatting.
 ${text}`,
         output: { schema: DiagnoseCropProblemOutputSchema },
       });
-      return await repairPrompt.generate();
+      const result = await repairPrompt();
+      return result;
     }
   }
 );
