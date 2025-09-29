@@ -120,10 +120,14 @@ export function Chatbot() {
          </Card>
       </div>
 
-      <Button 
-        size="icon" 
-        className={cn("rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-all duration-300", isOpen ? "opacity-0 scale-0 pointer-events-none" : "opacity-100 scale-100")} 
-        onClick={() => setIsOpen(true)}>
+      <Button
+        size="icon"
+        className={cn(
+          'rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-all duration-300',
+          isOpen ? 'opacity-0 scale-0 pointer-events-none' : 'opacity-100 scale-100'
+        )}
+        onClick={() => setIsOpen(true)}
+      >
         <PersonStanding className="h-8 w-8" />
       </Button>
     </div>
