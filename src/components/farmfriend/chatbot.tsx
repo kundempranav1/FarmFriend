@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/language-context';
 import { answerQuestion } from '@/ai/flows/answer-questions-with-chatbot';
-import { Bot, User, Send, X, Loader2 } from 'lucide-react';
+import { Bot, User, Send, X, Loader2, PersonStanding } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Message = {
@@ -123,7 +124,7 @@ export function Chatbot() {
         size="icon" 
         className={cn("rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-all duration-300", isOpen ? "opacity-0 scale-0 pointer-events-none" : "opacity-100 scale-100")} 
         onClick={() => setIsOpen(true)}>
-        <Bot className="h-8 w-8" />
+        <PersonStanding className="h-8 w-8" />
       </Button>
     </div>
   );
