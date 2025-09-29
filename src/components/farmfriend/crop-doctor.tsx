@@ -280,7 +280,7 @@ export function CropDoctor() {
 
             <div>
               <h3 className="font-bold text-xl mb-4 text-center">{t.solutions}</h3>
-              <Tabs defaultValue="organic" className="w-full">
+              <Tabs defaultValue="chemical" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="organic"><Leaf className="mr-2 h-4 w-4" />{t.organicRemedies}</TabsTrigger>
                   <TabsTrigger value="chemical"><TestTube2 className="mr-2 h-4 w-4" />{t.chemicalTreatments}</TabsTrigger>
