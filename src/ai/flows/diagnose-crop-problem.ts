@@ -61,6 +61,23 @@ const diagnoseCropProblemFlow = ai.defineFlow(
     outputSchema: DiagnoseCropProblemOutputSchema,
   },
   async input => {
-    return await prompt(input);
+    const llmResponse = await prompt.generate(input);
+    const text = llmResponse.text();
+
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      // If the output is not a valid JSON, we will ask the model to fix it.
+      const repairPrompt = ai.definePrompt({
+        name: 'repairJsonPrompt',
+        prompt: `The following output was supposed to be in JSON format, but is invalid.
+Please fix it and make sure to only return a valid JSON object.
+Do not include any other text or formatting.
+
+${text}`,
+        output: { schema: DiagnoseCropProblemOutputSchema },
+      });
+      return await repairPrompt.generate();
+    }
   }
 );
