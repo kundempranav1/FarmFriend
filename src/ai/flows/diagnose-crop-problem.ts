@@ -45,6 +45,8 @@ You are provided with a photo and a description of the problem. You should use t
 
 Finally, provide prevention tips to avoid the problem in the future.
 
+IMPORTANT: Your response must be only the raw JSON object, without any markdown formatting or other text.
+
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
 
