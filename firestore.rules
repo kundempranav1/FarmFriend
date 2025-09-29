@@ -1,230 +1,30 @@
-/**
- * @fileoverview Firestore Security Rules for FarmFriend application.
- *
- * Core Philosophy:
- * This ruleset enforces a user-ownership model for user-generated content (crop diagnoses, soil conditions, forum posts, and forum replies) and allows public read access to market prices, weather forecasts, and crops for sale, with owner-only write access for crops for sale.
- *
- * Data Structure:
- * - /users/{userId}: Stores user profiles, accessible only to the user themselves.
- * - /cropsForSale/{cropForSaleId}: Stores crop listings, publicly readable but writable only by the owner (userId).
- * - /users/{userId}/cropDiagnoses/{cropDiagnosisId}: Stores crop diagnoses, accessible only to the user.
- * - /users/{userId}/soilConditions/{soilConditionId}: Stores soil conditions, accessible only to the user.
- * - /users/{userId}/forumPosts/{forumPostId}: Stores forum posts, accessible only to the user.
- * - /forumPosts/{forumPostId}/forumReplies/{forumReplyId}: Stores forum replies, accessible only to authenticated users.
- * - /weatherForecasts/{weatherForecastId}: Stores weather forecasts, publicly readable.
- * - /marketPrices/{marketPriceId}: Stores market prices, publicly readable.
- *
- * Key Security Decisions:
- * - User listing is disallowed to protect user privacy.
- * - Public read access is granted to weather forecasts and market prices.
- * - The default security posture for ambiguous relationships is strict owner-only access.
- *
- * Denormalization for Authorization:
- * The `cropsForSale` documents contain a `userId` field to facilitate owner-only write access. This avoids costly `get()` calls to a separate `/users/{userId}` document.
- *
- * Structural Segregation:
- * Private user data is stored under the `/users/{userId}` collection, while global data like weather forecasts and market prices are stored in separate collections, each with its own security rules.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * @description Grants access to user profiles.
-     * @path /users/{userId}
-     * @allow (create) User with ID 'user123' can create their profile if request.auth.uid == 'user123'.
-     * @deny (create) User with ID 'user456' cannot create profile with ID 'user123' if request.auth.uid != 'user123'.
-     * @allow (get) User with ID 'user123' can read their profile.
-     * @deny (get) User with ID 'user456' cannot read profile with ID 'user123'.
-     * @allow (update) User with ID 'user123' can update their profile.
-     * @deny (update) User with ID 'user456' cannot update profile with ID 'user123'.
-     * @allow (delete) User with ID 'user123' can delete their profile.
-     * @deny (delete) User with ID 'user456' cannot delete profile with ID 'user123'.
-     * @principle Enforces document ownership for writes and reads.
-     */
-    match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow create: if isOwner(userId);
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+    // Allow read access to all documents for authenticated users
+    match /{document=**} {
+      allow read: if request.auth != null;
     }
 
-      /**
-       * @description Grants public read access to crops for sale, with owner-only writes.
-       * @path /cropsForSale/{cropForSaleId}
-       * @allow (get) Any user can read crop listings.
-       * @allow (list) Any user can list crop listings.
-       * @allow (create) User with ID 'user123' can create a crop listing if request.auth.uid == request.resource.data.userId.
-       * @deny (create) User with ID 'user456' cannot create a crop listing if request.auth.uid != request.resource.data.userId.
-       * @allow (update) User with ID 'user123' can update their crop listing.
-       * @deny (update) User with ID 'user456' cannot update crop listing owned by 'user123'.
-       * @allow (delete) User with ID 'user123' can delete their crop listing.
-       * @deny (delete) User with ID 'user456' cannot delete crop listing owned by 'user123'.
-       * @principle Grants public read access, enforces document ownership for writes.
-       */
-      match /cropsForSale/{cropForSaleId} {
-        allow get: if true;
-        allow list: if true;
-        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-        allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-        allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-      }
-
-    /**
-     * @description Grants access to crop diagnoses.
-     * @path /users/{userId}/cropDiagnoses/{cropDiagnosisId}
-     * @allow (create) User with ID 'user123' can create a crop diagnosis if request.auth.uid == 'user123'.
-     * @deny (create) User with ID 'user456' cannot create crop diagnosis with ID 'user123' if request.auth.uid != 'user123'.
-     * @allow (get) User with ID 'user123' can read their crop diagnosis.
-     * @deny (get) User with ID 'user456' cannot read crop diagnosis with ID 'user123'.
-     * @allow (update) User with ID 'user123' can update their crop diagnosis.
-     * @deny (update) User with ID 'user456' cannot update crop diagnosis with ID 'user123'.
-     * @allow (delete) User with ID 'user123' can delete their crop diagnosis.
-     * @deny (delete) User with ID 'user456' cannot delete crop diagnosis with ID 'user123'.
-     * @principle Enforces document ownership for writes and reads, restricts access to a user's own data tree.
-     */
-    match /users/{userId}/cropDiagnoses/{cropDiagnosisId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow create: if isOwner(userId);
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+    // Rules for the 'cropsForSale' collection
+    match /cropsForSale/{cropId} {
+      // Any authenticated user can create a listing
+      allow create: if request.auth != null;
+      
+      // Only the user who created the listing can update or delete it
+      allow update, delete: if request.auth.uid == resource.data.userId;
     }
 
-    /**
-     * @description Grants access to soil conditions.
-     * @path /users/{userId}/soilConditions/{soilConditionId}
-     * @allow (create) User with ID 'user123' can create a soil condition if request.auth.uid == 'user123'.
-     * @deny (create) User with ID 'user456' cannot create soil condition with ID 'user123' if request.auth.uid != 'user123'.
-     * @allow (get) User with ID 'user123' can read their soil condition.
-     * @deny (get) User with ID 'user456' cannot read soil condition with ID 'user123'.
-     * @allow (update) User with ID 'user123' can update their soil condition.
-     * @deny (update) User with ID 'user456' cannot update soil condition with ID 'user123'.
-     * @allow (delete) User with ID 'user123' can delete their soil condition.
-     * @deny (delete) User with ID 'user456' cannot delete soil condition with ID 'user123'.
-     * @principle Enforces document ownership for writes and reads, restricts access to a user's own data tree.
-     */
-    match /users/{userId}/soilConditions/{soilConditionId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
+    // Rules for the 'loanApplications' collection
+    match /loanApplications/{applicationId} {
+      // An authenticated user can create a loan application for themselves
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
 
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow create: if isOwner(userId);
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Grants access to forum posts.
-     * @path /users/{userId}/forumPosts/{forumPostId}
-     * @allow (create) User with ID 'user123' can create a forum post if request.auth.uid == 'user123'.
-     * @deny (create) User with ID 'user456' cannot create forum post with ID 'user123' if request.auth.uid != 'user123'.
-     * @allow (get) User with ID 'user123' can read their forum post.
-     * @deny (get) User with ID 'user456' cannot read forum post with ID 'user123'.
-     * @allow (update) User with ID 'user123' can update their forum post.
-     * @deny (update) User with ID 'user456' cannot update forum post with ID 'user123'.
-     * @allow (delete) User with ID 'user123' can delete their forum post.
-     * @deny (delete) User with ID 'user456' cannot delete forum post with ID 'user123'.
-     * @principle Enforces document ownership for writes and reads, restricts access to a user's own data tree.
-     */
-    match /users/{userId}/forumPosts/{forumPostId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow create: if isOwner(userId);
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Grants access to forum replies.
-     * @path /forumPosts/{forumPostId}/forumReplies/{forumReplyId}
-     * @allow (create) Any authenticated user can create a forum reply.
-     * @deny (create) Unauthenticated user cannot create a forum reply.
-     * @allow (get) Any authenticated user can read a forum reply.
-     * @deny (get) Unauthenticated user cannot read a forum reply.
-     * @allow (update) The owner can update their forum reply.
-     * @deny (update) A non-owner cannot update a forum reply.
-     * @allow (delete) The owner can delete their forum reply.
-     * @deny (delete) A non-owner cannot delete a forum reply.
-     * @principle Enforces authentication for writes and reads.
-     */
-    match /forumPosts/{forumPostId}/forumReplies/{forumReplyId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    /**
-     * @description Grants public read access to weather forecasts.
-     * @path /weatherForecasts/{weatherForecastId}
-     * @allow (get) Any user can read weather forecasts.
-     * @allow (list) Any user can list weather forecasts.
-     * @deny (create) No one can create a weather forecast through the client.
-     * @deny (update) No one can update a weather forecast through the client.
-     * @deny (delete) No one can delete a weather forecast through the client.
-     * @principle Grants public read access.
-     */
-    match /weatherForecasts/{weatherForecastId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
-    }
-
-    /**
-     * @description Grants public read access to market prices.
-     * @path /marketPrices/{marketPriceId}
-     * @allow (get) Any user can read market prices.
-     * @allow (list) Any user can list market prices.
-     * @deny (create) No one can create a market price through the client.
-     * @deny (update) No one can update a market price through the client.
-     * @deny (delete) No one can delete a market price through the client.
-     * @principle Grants public read access.
-     */
-    match /marketPrices/{marketPriceId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
-    }
-
-    function isSignedIn() {
-      return request.auth != null;
+      // Only the user who created the application can view, update or delete it
+      // (This is a restrictive rule, adjust if admins need access)
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }
 }
