@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser, useAuth } from "@/firebase";
+import { useUser } from "@/firebase";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Leaf, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { initiateEmailSignIn, initiateEmailSignUp } from "@/firebase/non-blocking-login";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from "@/app/auth/context";
 
 export default function LoginPage() {
   const [signInEmail, setSignInEmail] = useState("pranavvenkat2005@gmail.com");
@@ -36,7 +35,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, signInEmail, signInPassword);
+      await auth.signIn(signInEmail, signInPassword);
       router.push("/");
     } catch (error) {
       console.error(error);
@@ -54,7 +53,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
+      await auth.signUp(signUpEmail, signUpPassword);
        toast({
         title: "Account Created",
         description: "You have been successfully signed up. Redirecting...",
