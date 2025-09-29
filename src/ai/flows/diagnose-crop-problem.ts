@@ -59,7 +59,6 @@ const diagnoseCropProblemFlow = ai.defineFlow(
     outputSchema: DiagnoseCropProblemOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    return await prompt(input);
   }
 );

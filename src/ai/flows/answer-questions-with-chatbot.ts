@@ -41,7 +41,6 @@ const answerQuestionFlow = ai.defineFlow(
     outputSchema: AnswerQuestionOutputSchema,
   },
   async input => {
-    const {output} = await answerQuestionPrompt(input);
-    return output!;
+    return await answerQuestionPrompt(input);
   }
 );
