@@ -3,14 +3,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow authenticated users to manage their own crop sale listings
     match /cropsForSale/{documentId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read;
+      allow create: if request.auth != null;
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
+    
+    // Allow authenticated users to create a loan application for themselves
     match /loanApplications/{documentId} {
-      allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // Add rules for read, update, delete as needed later
     }
   }
 }
