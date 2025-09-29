@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -11,8 +12,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 export default function ApplyLoanPage() {
@@ -55,13 +57,13 @@ export default function ApplyLoanPage() {
     try {
         const loanApplicationsCollection = collection(firestore, "loanApplications");
         
-        await addDoc(loanApplicationsCollection, {
+        addDocumentNonBlocking(loanApplicationsCollection, {
             userId: user.uid,
             email: user.email,
             loanAmount: Number(loanAmount),
             loanPurpose: loanPurpose,
             status: 'pending',
-            submittedAt: new Date(),
+            submittedAt: serverTimestamp(),
         });
 
         toast({

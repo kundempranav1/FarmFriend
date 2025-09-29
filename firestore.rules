@@ -1,18 +1,14 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Rules for cropsForSale collection
-    match /cropsForSale/{documentId} {
+    match /cropsForSale/{cropId} {
+      allow read;
       allow create: if request.auth != null;
-      allow read: if true;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth.uid == resource.data.userId;
     }
-
-    // Rules for loanApplications collection
-    match /loanApplications/{applicationId} {
+    match /loanApplications/{loanId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }
