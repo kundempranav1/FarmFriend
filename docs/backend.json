@@ -11,6 +11,19 @@
           "type": "string",
           "description": "Unique identifier for the user."
         },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
         "language": {
           "type": "string",
           "description": "The user's preferred language (e.g., 'en', 'hi', 'te', 'ta', 'kn')."
@@ -377,7 +390,7 @@
         "definition": {
           "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/entities/User"
           },
           "description": "Collection for storing user profiles.",
           "params": [
@@ -409,7 +422,7 @@
         "definition": {
           "entityName": "LoanApplication",
           "schema": {
-            "$ref": "#/backend/entities/LoanApplication"
+            "$ref": "#/entities/LoanApplication"
           },
           "description": "Top-level collection for all loan applications.",
           "params": [
@@ -425,7 +438,7 @@
         "definition": {
           "entityName": "CropDiagnosis",
           "schema": {
-            "$ref": "#/backend/entities/CropDiagnosis"
+            "$ref": "#/entities/CropDiagnosis"
           },
           "description": "Subcollection for storing crop diagnoses performed by the user.",
           "params": [
@@ -445,7 +458,7 @@
         "definition": {
           "entityName": "SoilCondition",
           "schema": {
-            "$ref": "#/backend/entities/SoilCondition"
+            "$ref": "#/entities/SoilCondition"
           },
           "description": "Subcollection for storing soil condition data recorded by the user.",
           "params": [
@@ -465,7 +478,7 @@
         "definition": {
           "entityName": "ForumPost",
           "schema": {
-            "$ref": "#/backend/entities/ForumPost"
+            "$ref": "#/entities/ForumPost"
           },
           "description": "Subcollection for storing forum posts created by the user.",
           "params": [
@@ -485,7 +498,7 @@
         "definition": {
           "entityName": "ForumReply",
           "schema": {
-            "$ref": "#/backend/entities/ForumReply"
+            "$ref": "#/entities/ForumReply"
           },
           "description": "Subcollection for storing forum replies to a specific post.",
           "params": [
@@ -505,7 +518,7 @@
         "definition": {
           "entityName": "WeatherForecast",
           "schema": {
-            "$ref": "#/backend/entities/WeatherForecast"
+            "$ref": "#/entities/WeatherForecast"
           },
           "description": "Collection for storing weather forecast data.",
           "params": [
@@ -521,7 +534,7 @@
         "definition": {
           "entityName": "MarketPrice",
           "schema": {
-            "$ref": "#/backend/entities/MarketPrice"
+            "$ref": "#/entities/MarketPrice"
           },
           "description": "Collection for storing market price data.",
           "params": [
