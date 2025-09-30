@@ -18,6 +18,8 @@ import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
+import { Profile } from '@/components/farmfriend/profile';
+import { AppFeatures } from '@/components/farmfriend/app-features';
 
 function PageContent() {
   const { user } = useUser();
@@ -31,9 +33,13 @@ function PageContent() {
     setOpenMobile(false);
   }
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (id: string) => {
     if (setOpenMobile) {
       setOpenMobile(false);
+    }
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
@@ -53,7 +59,7 @@ function PageContent() {
             <SidebarGroup>
               <SidebarGroupLabel>Settings</SidebarGroupLabel>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Profile' onClick={handleLinkClick}>
+                <SidebarMenuButton tooltip='Profile' onClick={() => handleLinkClick('profile')}>
                   <User />
                   Profile
                 </SidebarMenuButton>
@@ -72,7 +78,7 @@ function PageContent() {
                   </div>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Features' onClick={handleLinkClick}>
+                <SidebarMenuButton tooltip='Features' onClick={() => handleLinkClick('app-features')}>
                   <Puzzle />
                   Features
                 </SidebarMenuButton>
@@ -93,7 +99,7 @@ function PageContent() {
               ) : (
                   <SidebarMenu>
                        <SidebarMenuItem>
-                         <Link href="/login" onClick={handleLinkClick}>
+                         <Link href="/login" onClick={() => handleLinkClick('')}>
                           <SidebarMenuButton>
                               <LogIn />
                               Login
@@ -114,6 +120,8 @@ function PageContent() {
               <Marketplace />
               <FinancialServices />
               <KnowledgeHub />
+              <Profile />
+              <AppFeatures />
             </div>
           </div>
         </main>
