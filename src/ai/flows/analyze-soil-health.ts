@@ -53,6 +53,7 @@ const analyzeSoilHealthFlow = ai.defineFlow(
     outputSchema: AnalyzeSoilHealthOutputSchema,
   },
   async input => {
-    return await prompt(input);
+    const llmResponse = await prompt(input);
+    return llmResponse;
   }
 );
