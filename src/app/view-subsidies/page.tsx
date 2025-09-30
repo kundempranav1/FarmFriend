@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from 'react';
@@ -56,7 +57,7 @@ export default function ViewSubsidiesPage() {
                                 <h4 className="font-semibold">Eligibility:</h4>
                                 <p className="text-muted-foreground">{sub.eligibility}</p>
                             </div>
-                            <Button>Check Eligibility & Apply</Button>
+                            <Button>Check Eligibility &amp; Apply</Button>
                         </CardContent>
                     </Card>
                 ))}
