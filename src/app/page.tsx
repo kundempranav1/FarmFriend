@@ -10,7 +10,7 @@ import { Chatbot } from '@/components/farmfriend/chatbot';
 import { Footer } from '@/components/farmfriend/footer';
 import { Marketplace } from '@/components/farmfriend/marketplace';
 import { FinancialServices } from '@/components/farmfriend/financial-services';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar, SidebarFooter } from '@/components/ui/sidebar';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { User, Palette, Puzzle, LogIn, LogOut, Leaf, BarChart, BrainCircuit } from 'lucide-react';
