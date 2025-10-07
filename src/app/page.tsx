@@ -25,7 +25,7 @@ import { SeasonPredictor } from '@/components/farmfriend/season-predictor';
 
 function PageContent() {
   const { user } = useUser();
-  const { auth } = useAuth();
+  const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
   const { setOpen: setOpenMobile } = useSidebar();
@@ -38,12 +38,13 @@ function PageContent() {
   }
 
   const handleLinkClick = (id: string) => {
-    if (setOpenMobile) {
-      setOpenMobile(false);
-    }
+    setOpenMobile(false);
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      // Add a slight delay to allow the sidebar to close before scrolling
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   }
 
@@ -63,9 +64,10 @@ function PageContent() {
             <SidebarGroup>
               <SidebarGroupLabel>Settings</SidebarGroupLabel>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Profile' title="Profile" onClick={() => handleLinkClick('profile')}>
-                  <User />
-                </SidebarMenuButton>
+                  <SidebarMenuButton title="Profile" onClick={() => handleLinkClick('profile')}>
+                    <User />
+                    Profile
+                  </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                  <div className="flex items-center justify-between p-2">
@@ -81,18 +83,21 @@ function PageContent() {
                   </div>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Features' title="Features" onClick={() => handleLinkClick('app-features')}>
+                <SidebarMenuButton title="Features" onClick={() => handleLinkClick('app-features')}>
                   <Puzzle />
+                  Features
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Analytics' title="Analytics" onClick={() => handleLinkClick('data-analytics')}>
+                <SidebarMenuButton title="Analytics" onClick={() => handleLinkClick('data-analytics')}>
                   <BarChart />
+                  Analytics
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Predictor' title="Predictor" onClick={() => handleLinkClick('season-predictor')}>
+                <SidebarMenuButton title="Predictor" onClick={() => handleLinkClick('season-predictor')}>
                   <BrainCircuit />
+                  Predictor
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarGroup>
@@ -104,15 +109,17 @@ function PageContent() {
                       <SidebarMenuItem>
                           <SidebarMenuButton title="Logout" onClick={handleSignOut}>
                               <LogOut />
+                              Logout
                           </SidebarMenuButton>
                       </SidebarMenuItem>
                   </SidebarMenu>
               ) : (
                   <SidebarMenu>
                        <SidebarMenuItem>
-                         <Link href="/login" onClick={() => handleLinkClick('')}>
+                         <Link href="/login" onClick={() => setOpenMobile(false)}>
                           <SidebarMenuButton title="Login">
                               <LogIn />
+                              Login
                           </SidebarMenuButton>
                           </Link>
                       </SidebarMenuItem>

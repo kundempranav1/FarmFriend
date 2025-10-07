@@ -40,7 +40,7 @@ export function Header({ showSidebarTrigger = false }: { showSidebarTrigger?: bo
             </SelectContent>
           </Select>
           {!user && (
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <Button variant="outline" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
