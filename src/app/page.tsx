@@ -28,7 +28,7 @@ function PageContent() {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
-  const { setOpenMobile, state } = useSidebar();
+  const { setOpenMobile } = useSidebar();
 
   const handleSignOut = () => {
     if (auth) {
@@ -53,7 +53,7 @@ function PageContent() {
         <SidebarHeader>
            <div className="flex items-center gap-2 p-2">
               <Leaf className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline group-data-[state=collapsed]:hidden">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline">
                   {t.appName}
               </h1>
           </div>
@@ -68,13 +68,10 @@ function PageContent() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                 <div className="flex items-center justify-between p-2 group-data-[state=collapsed]:justify-center">
-                      <div className="flex items-center gap-2 group-data-[state=collapsed]:hidden">
+                 <div className="flex items-center justify-between p-2">
+                      <div className="flex items-center gap-2">
                           <Palette />
                           <Label htmlFor="theme-switch">Theme</Label>
-                      </div>
-                      <div className="group-data-[state=expanded]:hidden">
-                        <Palette />
                       </div>
                       <Switch
                           id="theme-switch"

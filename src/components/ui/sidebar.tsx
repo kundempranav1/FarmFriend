@@ -69,7 +69,8 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const isMobile = useIsMobile()
-    const [openMobile, setOpenMobile] = React.useState(false)
+    const [openState, setOpenState] = React.useState(false);
+
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -92,10 +93,8 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open)
-    }, [isMobile, setOpen, setOpenMobile])
+      setOpenState(prev => !prev);
+    }, [setOpenState])
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -119,15 +118,15 @@ const SidebarProvider = React.forwardRef<
 
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
-        state,
-        open,
-        setOpen,
+        state: 'expanded',
+        open: openState,
+        setOpen: setOpenState,
         isMobile,
-        openMobile,
-        setOpenMobile,
+        openMobile: openState,
+        setOpenMobile: setOpenState,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, openState, setOpenState, isMobile, toggleSidebar]
     )
 
     return (
@@ -176,44 +175,24 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
-
-    if (isMobile) {
-      return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
-            data-sidebar="sidebar"
-            data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-              } as React.CSSProperties
-            }
-            side={side}
-          >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
-      )
-    }
+    const { openMobile, setOpenMobile, state } = useSidebar()
 
     return (
-       <div
-        ref={ref}
-        data-sidebar="sidebar"
-        data-side={side}
-        data-state={state}
-        data-collapsible={collapsible}
-        className={cn("hidden h-full flex-col bg-background text-foreground border-r transition-all duration-300 md:flex", 
-        collapsible && "data-[state=collapsed]:w-[--sidebar-width-icon] data-[state=expanded]:w-[--sidebar-width]",
-        !collapsible && "w-[--sidebar-width]",
-        className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
+      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <SheetContent
+          data-sidebar="sidebar"
+          data-mobile="true"
+          className="w-[--sidebar-width] bg-background p-0 text-foreground [&>button]:hidden"
+          style={
+            {
+              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+            } as React.CSSProperties
+          }
+          side={side}
+        >
+          <div className="flex h-full w-full flex-col">{children}</div>
+        </SheetContent>
+      </Sheet>
     )
   }
 )
@@ -284,7 +263,7 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background transition-all duration-300",
-        !isMobile && "group-has-[[data-state=expanded]]:ml-[--sidebar-width] group-has-[[data-state=collapsed]]:ml-[--sidebar-width-icon]",
+        !isMobile && "group-has-[[data-state=expanded]]:ml-0",
         className
       )}
       {...props}
