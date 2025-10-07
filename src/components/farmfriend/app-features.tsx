@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, LineChart, TestTube2, MessageSquare, Landmark, ShoppingCart } from "lucide-react";
+import { Leaf, LineChart, TestTube2, MessageSquare, Landmark, ShoppingCart, BarChart } from "lucide-react";
 
 const features = [
   { icon: Leaf, title: "AI-Powered Crop Doctor", description: "Diagnose crop diseases from an image." },
@@ -11,6 +11,7 @@ const features = [
   { icon: ShoppingCart, title: "Input Supply Chain", description: "Marketplace for seeds and fertilizers." },
   { icon: Landmark, title: "Financial Solutions", description: "Access to loans, subsidies, and insurance." },
   { icon: MessageSquare, title: "Knowledge Hub", description: "Connect with a community of farmers." },
+  { icon: BarChart, title: "Data Analytics", description: "Visualize yield predictions and profitability." },
 ];
 
 export function AppFeatures() {

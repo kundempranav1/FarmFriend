@@ -13,13 +13,14 @@ import { FinancialServices } from '@/components/farmfriend/financial-services';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { User, Palette, Puzzle, LogIn, LogOut, Leaf } from 'lucide-react';
+import { User, Palette, Puzzle, LogIn, LogOut, Leaf, BarChart } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { Profile } from '@/components/farmfriend/profile';
 import { AppFeatures } from '@/components/farmfriend/app-features';
+import { DataAnalytics } from '@/components/farmfriend/data-analytics';
 
 function PageContent() {
   const { user } = useUser();
@@ -83,6 +84,12 @@ function PageContent() {
                   Features
                 </SidebarMenuButton>
               </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton tooltip='Analytics' onClick={() => handleLinkClick('data-analytics')}>
+                  <BarChart />
+                  Analytics
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarGroup>
           </SidebarMenu>
         </SidebarContent>
@@ -120,6 +127,7 @@ function PageContent() {
               <Marketplace />
               <FinancialServices />
               <KnowledgeHub />
+              <DataAnalytics />
               <Profile />
               <AppFeatures />
             </div>
