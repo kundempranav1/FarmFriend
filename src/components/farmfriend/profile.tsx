@@ -110,12 +110,12 @@ export function Profile() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 relative">
             <div className="flex items-center gap-4">
               <Mail className="h-5 w-5 text-muted-foreground" />
               <span className="text-muted-foreground">{user?.email || "No email provided"}</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="absolute top-6 right-6 flex items-center gap-2">
               <Phone className="h-5 w-5 text-muted-foreground" />
               <span className="text-muted-foreground">{phoneNumberToShow}</span>
             </div>
