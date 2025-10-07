@@ -2,8 +2,8 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, LineChart as LineChartIcon, TrendingUp, TrendingDown, Wheat, Droplets, FlaskConical } from "lucide-react";
-import { Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart } from 'recharts';
+import { LineChart as LineChartIcon, TrendingUp, Wheat } from "lucide-react";
+import { Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, BarChart } from 'recharts';
 
 const yieldData = [
   { name: 'Wheat', predictedYield: 4500, lastYear: 4200 },
