@@ -30,7 +30,9 @@ function PageContent() {
   const { setOpenMobile } = useSidebar();
 
   const handleSignOut = () => {
-    signOut(auth);
+    if (auth) {
+        signOut(auth);
+    }
     setOpenMobile(false);
   }
 
