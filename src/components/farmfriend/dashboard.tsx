@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -93,7 +94,7 @@ export function SmartDashboard() {
         setWeatherError(null);
         const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
         if (!apiKey || typeof apiKey !== 'string' || apiKey === 'your_key' || apiKey.length < 30) {
-            setWeatherError("API key not configured.");
+            setWeatherError("Live weather is not configured. Using sample data.");
             setWeatherData(staticWeatherData);
             setForecastData(staticForecastData);
             setLoadingWeather(false);
@@ -126,7 +127,7 @@ export function SmartDashboard() {
         setForecastData(dailyForecast);
       } catch (error: any) {
         console.error("Failed to fetch weather data:", error);
-        setWeatherError("Could not fetch weather data.");
+        setWeatherError("Could not fetch live weather data. Using sample data.");
         setWeatherData(staticWeatherData);
         setForecastData(staticForecastData);
       } finally {
@@ -141,14 +142,14 @@ export function SmartDashboard() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setWeatherError("Could not get your location.");
+          setWeatherError("Could not get your location. Using sample data.");
           setWeatherData(staticWeatherData);
           setForecastData(staticForecastData);
           setLoadingWeather(false);
         }
       );
     } else {
-      setWeatherError("Geolocation is not supported by your browser.");
+      setWeatherError("Geolocation is not supported. Using sample data.");
       setWeatherData(staticWeatherData);
       setForecastData(staticForecastData);
       setLoadingWeather(false);
@@ -194,8 +195,8 @@ export function SmartDashboard() {
     }
   };
   
-  const displayData = weatherError ? staticWeatherData : weatherData;
-  const displayForecast = weatherError ? staticForecastData : forecastData;
+  const displayData = weatherData;
+  const displayForecast = forecastData;
   const CurrentWeatherIcon = displayData ? weatherIconMapping[displayData.weather[0].icon] || Cloud : Cloud;
 
 
@@ -224,6 +225,15 @@ export function SmartDashboard() {
                 </div>
             ) : displayData && displayForecast ? (
               <>
+                {weatherError && (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Weather Service Not Configured</AlertTitle>
+                        <AlertDescription>
+                            {weatherError} To enable live weather, add your OpenWeatherMap API key to a `.env.local` file.
+                        </AlertDescription>
+                    </Alert>
+                )}
                 <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
                   <div>
                     <p className="text-sm text-muted-foreground">{t.temperature}</p>
@@ -235,13 +245,7 @@ export function SmartDashboard() {
                     <div className="flex items-center gap-2"><Droplets className="text-blue-400"/><span>{t.humidity}: {displayData.main.humidity}%</span></div>
                     <div className="flex items-center gap-2"><Wind className="text-gray-400"/><span>{t.windSpeed}: {displayData.wind.speed.toFixed(1)} km/h</span></div>
                 </div>
-                {displayData.weather[0].main === 'Rain' && (
-                  <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
-                    <AlertTriangle className="h-5 w-5"/>
-                    <span className="text-sm font-medium">{t.severeWeather}</span>
-                  </div>
-                )}
-                 <Card>
+                <Card>
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2"><Leaf className="text-primary"/>{t.cropAdvisory}</CardTitle>
                   </CardHeader>
@@ -252,8 +256,8 @@ export function SmartDashboard() {
                 <div className="flex justify-between text-center">
                   {displayForecast.map((day: any, index: number) => {
                       const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
-                      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                       const dayName = weatherError ? dayNames[(new Date().getDay() + index) % 7] : new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
+                      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                       return (
                         <div key={day.dt} className="flex flex-col items-center gap-1">
                           <span className="text-sm font-medium">{dayName}</span>
@@ -397,3 +401,5 @@ export function SmartDashboard() {
     </section>
   );
 }
+
+    
