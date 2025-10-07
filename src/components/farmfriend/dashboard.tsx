@@ -18,7 +18,6 @@ import { Button } from '../ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeSoilHealth, type AnalyzeSoilHealthOutput } from '@/ai/flows/analyze-soil-health';
 
@@ -225,15 +224,6 @@ export function SmartDashboard() {
                 </div>
             ) : displayData && displayForecast ? (
               <>
-                {weatherError && (
-                    <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Weather Service Not Configured</AlertTitle>
-                        <AlertDescription>
-                            {weatherError} To enable live weather, add your OpenWeatherMap API key to a `.env.local` file.
-                        </AlertDescription>
-                    </Alert>
-                )}
                 <div className="flex justify-between items-center p-4 rounded-lg bg-secondary/50">
                   <div>
                     <p className="text-sm text-muted-foreground">{t.temperature}</p>
@@ -255,8 +245,8 @@ export function SmartDashboard() {
                 </Card>
                 <div className="flex justify-between text-center">
                   {displayForecast.map((day: any, index: number) => {
-                      const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
                       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
                       const dayName = weatherError ? dayNames[(new Date().getDay() + index) % 7] : new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
                       return (
                         <div key={day.dt} className="flex flex-col items-center gap-1">
@@ -401,5 +391,3 @@ export function SmartDashboard() {
     </section>
   );
 }
-
-    
