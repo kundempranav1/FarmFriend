@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     appName: 'FarmFriend',
@@ -93,6 +94,10 @@ export const translations = {
     cropInsurance: "Crop Insurance",
     cropInsuranceDescription: "Protect your crops from natural disasters and unforeseen events.",
     getInsurance: "Get Insurance",
+    // Season Predictor
+    seasonPredictorTitle: "AI-Powered Season Predictor",
+    seasonPredictorDescription: "Get AI-driven predictions for sowing and harvesting times based on historical and predictive climate data.",
+    seasonPredictorCardTitle: "Get Your Smart Season Prediction",
   },
   hi: {
     appName: 'फार्मफ्रेंड',
@@ -188,6 +193,10 @@ export const translations = {
     cropInsurance: "फसल बीमा",
     cropInsuranceDescription: "प्राकृतिक आपदाओं और अप्रत्याशित घटनाओं से अपनी फसलों की रक्षा करें।",
     getInsurance: "बीमा प्राप्त करें",
+    // Season Predictor
+    seasonPredictorTitle: "एआई-संचालित सीजन भविष्यवक्ता",
+    seasonPredictorDescription: "ऐतिहासिक और भविष्य कहनेवाला जलवायु डेटा के आधार पर बुवाई और कटाई के समय के लिए एआई-संचालित भविष्यवाणियां प्राप्त करें।",
+    seasonPredictorCardTitle: "अपना स्मार्ट सीजन पूर्वानुमान प्राप्त करें",
   },
   te: {
     appName: 'ఫార్మ్‌ఫ్రెండ్',
@@ -272,6 +281,10 @@ export const translations = {
     cropInsurance: "పంట బీమా",
     cropInsuranceDescription: "ప్రకృతి వైపరీత్యాలు మరియు ఊహించని సంఘటనల నుండి మీ పంటలను రక్షించండి.",
     getInsurance: "బీమా పొందండి",
+    // Season Predictor
+    seasonPredictorTitle: "AI-ఆధారిత సీజన్ ప్రిడిక్టర్",
+    seasonPredictorDescription: "చారిత్రక మరియు ఊహాజనిత వాతావరణ డేటా ఆధారంగా విత్తనాలు మరియు కోత సమయాల కోసం AI-ఆధారిత అంచనాలను పొందండి.",
+    seasonPredictorCardTitle: "మీ స్మార్ట్ సీజన్ సూచనను పొందండి",
   },
   ta: {
     appName: 'ஃபார்ம்ஃப்ரெண்ட்',
@@ -356,6 +369,10 @@ export const translations = {
     cropInsurance: "பயிர் காப்பீடு",
     cropInsuranceDescription: "இயற்கை பேரழிவுகள் మరియు எதிர்பாராத நிகழ்வுகளிலிருந்து உங்கள் பயிர்களைப் பாதுகாக்கவும்.",
     getInsurance: "காப்பீடு பெறுங்கள்",
+    // Season Predictor
+    seasonPredictorTitle: "AI-இயங்கும் சீசன் ப்ரெடிக்டர்",
+    seasonPredictorDescription: "வரலாற்று மற்றும் கணிப்பு காலநிலை தரவுகளின் அடிப்படையில் விதைப்பு மற்றும் அறுவடை நேரங்களுக்கான AI-இயங்கும் கணிப்புகளைப் பெறுங்கள்.",
+    seasonPredictorCardTitle: "உங்கள் ஸ்மார்ட் சீசன் கணிப்பைப் பெறுங்கள்",
   },
   kn: {
     appName: 'ಫಾರ್ಮ್‌ಫ್ರೆಂಡ್',
@@ -412,7 +429,7 @@ export const translations = {
     chatbotInputPlaceholder: 'ಕೃಷಿ గురించి ఏదైనా ಕೇಳಿ...',
     footerText: '© 2024 ఫాంఫ్రంట్. ಕೃಷിയെ తెలివిగా, కలిసికట్టుగా ಮಾಡುವುದು.',
     toastErrorTitle: 'ದೋಷ',
-    toastErrorDescription: 'ఒಂದು ಅപ്രതീక్షిత ದೋಷ ಸಂభవಿಸಿದೆ. దయవిట్టు మళ్లీ ప్రయత్నిసి.',
+    toastErrorDescription: 'ఒಂದು ಅപ്രതീక్షిత ದೋಷ ಸಂಭವಿಸಿದೆ. దయవిట్టు మళ్లీ ప్రయత్నిసి.',
     toastDiagnosisError: 'ರೋಗನಿರ್ಣಯ ವಿಫలವಾಗಿದೆ. దయవిట్టు ನಿಮ್ಮ చిత్రం మరియు వివరణವನ್ನು ಪರಿಶೀಲಿಸಿ.',
     uploading: "ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
     diagnosing: 'AI ಯೊಂದಿಗೆ ರೋಗನಿರ್ಣಯ ಮಾಡಲಾಗುತ್ತಿದೆ...',
@@ -440,5 +457,9 @@ export const translations = {
     cropInsurance: "ಬೆಳೆ ವಿಮೆ",
     cropInsuranceDescription: "ನೈಸರ್ಗಿಕ ವಿಕೋಪಗಳು మరియు ಅನಿರೀಕ್ಷಿತ ಘಟನೆಗಳಿಂದ ನಿಮ್ಮ ಬೆಳೆಗಳನ್ನು ರಕ್ಷಿಸಿ.",
     getInsurance: "ವಿಮೆ ಪಡೆಯಿರಿ",
+    // Season Predictor
+    seasonPredictorTitle: "AI-ಚಾಲಿತ ಋತುಮಾನದ ಮುನ್ಸೂಚಕ",
+    seasonPredictorDescription: "ಐತಿಹಾಸಿಕ ಮತ್ತು ಭವಿಷ್ಯಸೂಚಕ ಹವಾಮಾನ ಡೇಟಾದ ಆಧಾರದ ಮೇಲೆ ಬಿತ್ತನೆ ಮತ್ತು ಕೊಯ್ಲು ಸಮಯಗಳಿಗಾಗಿ AI-ಚಾಲಿತ ಮುನ್ಸೂಚನೆಗಳನ್ನು ಪಡೆಯಿರಿ.",
+    seasonPredictorCardTitle: "ನಿಮ್ಮ ಸ್ಮಾರ್ಟ್ ಋತುಮಾನದ ಮುನ್ಸೂಚನೆಯನ್ನು ಪಡೆಯಿರಿ",
   },
 };

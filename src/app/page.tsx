@@ -13,7 +13,7 @@ import { FinancialServices } from '@/components/farmfriend/financial-services';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { User, Palette, Puzzle, LogIn, LogOut, Leaf, BarChart } from 'lucide-react';
+import { User, Palette, Puzzle, LogIn, LogOut, Leaf, BarChart, BrainCircuit } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import { signOut } from 'firebase/auth';
 import { Profile } from '@/components/farmfriend/profile';
 import { AppFeatures } from '@/components/farmfriend/app-features';
 import { DataAnalytics } from '@/components/farmfriend/data-analytics';
+import { SeasonPredictor } from '@/components/farmfriend/season-predictor';
 
 function PageContent() {
   const { user } = useUser();
@@ -92,6 +93,12 @@ function PageContent() {
                   Analytics
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip='Predictor' onClick={() => handleLinkClick('season-predictor')}>
+                  <BrainCircuit />
+                  Predictor
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarGroup>
           </SidebarMenu>
         </SidebarContent>
@@ -126,6 +133,7 @@ function PageContent() {
             <div className="grid gap-12 md:gap-16 lg:gap-20">
               <SmartDashboard />
               <CropDoctor />
+              <SeasonPredictor />
               <Marketplace />
               <FinancialServices />
               <KnowledgeHub />

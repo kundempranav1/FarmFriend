@@ -2,10 +2,11 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, LineChart, TestTube2, MessageSquare, Landmark, ShoppingCart, BarChart } from "lucide-react";
+import { Leaf, LineChart, TestTube2, MessageSquare, Landmark, ShoppingCart, BarChart, BrainCircuit } from "lucide-react";
 
 const features = [
   { icon: Leaf, title: "AI-Powered Crop Doctor", description: "Diagnose crop diseases from an image." },
+  { icon: BrainCircuit, title: "Smart Season Predictor", description: "Get AI-based sowing and harvesting time predictions."},
   { icon: LineChart, title: "Smart Dashboard", description: "Get hyper-local weather and market prices." },
   { icon: TestTube2, title: "Soil & Crop Health", description: "Analyze soil health from a photo." },
   { icon: ShoppingCart, title: "Input Supply Chain", description: "Marketplace for seeds and fertilizers." },
