@@ -31,8 +31,6 @@ type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
 }
@@ -93,8 +91,9 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      setOpenState(prev => !prev);
-    }, [setOpenState])
+        setOpen(prev => !prev);
+    }, [setOpen]);
+    
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -118,12 +117,10 @@ const SidebarProvider = React.forwardRef<
 
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
-        state: 'expanded',
+        state,
         open: openState,
         setOpen: setOpenState,
         isMobile,
-        openMobile: openState,
-        setOpenMobile: setOpenState,
         toggleSidebar,
       }),
       [state, openState, setOpenState, isMobile, toggleSidebar]
@@ -131,23 +128,25 @@ const SidebarProvider = React.forwardRef<
 
     return (
       <TooltipProvider delayDuration={0}>
-        <div
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH,
-              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-              ...style,
-            } as React.CSSProperties
-          }
-          className={cn(
-            "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
-            className
-          )}
-          ref={ref}
-          {...props}
-        >
-          {children}
-        </div>
+        <SidebarContext.Provider value={contextValue}>
+          <div
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH,
+                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+                ...style,
+              } as React.CSSProperties
+            }
+            className={cn(
+              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              className
+            )}
+            ref={ref}
+            {...props}
+          >
+            {children}
+          </div>
+        </SidebarContext.Provider>
       </TooltipProvider>
     )
   }
@@ -155,29 +154,43 @@ const SidebarProvider = React.forwardRef<
 SidebarProvider.displayName = "SidebarProvider"
 
 const Sidebar = React.forwardRef<
-  React.ElementRef<typeof Sheet>,
-  React.ComponentProps<typeof Sheet>
+  HTMLDivElement,
+  React.ComponentProps<"div">
 >(({ className, children, ...props }, ref) => {
-    const { openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, open, setOpen } = useSidebar()
+
+    if (isMobile) {
+      return (
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetContent
+            data-sidebar="sidebar"
+            data-mobile="true"
+            className="w-[var(--sidebar-width-mobile)] bg-background p-0 text-foreground"
+            style={
+              {
+                "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
+              } as React.CSSProperties
+            }
+            side="left"
+          >
+            <div className="flex h-full w-full flex-col">{children}</div>
+          </SheetContent>
+        </Sheet>
+      )
+    }
 
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-        <SheetContent
-          ref={ref}
-          data-sidebar="sidebar"
-          data-mobile="true"
-          className="w-[var(--sidebar-width-mobile)] bg-background p-0 text-foreground [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-          side="left"
-        >
-          <SheetTitle className="sr-only">Sidebar Navigation</SheetTitle>
-          <div className="flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
-      </Sheet>
+      <div
+        ref={ref}
+        data-sidebar="sidebar"
+        className={cn(
+          "relative z-30 flex h-screen shrink-0 flex-col border-r bg-background text-foreground transition-[width] group-data-[state=expanded]:w-[var(--sidebar-width)] group-data-[state=collapsed]:w-[var(--sidebar-width-icon)]",
+          className
+        )}
+        {...props}
+      >
+        <div className="flex h-full min-h-0 flex-col">{children}</div>
+      </div>
     )
   }
 )

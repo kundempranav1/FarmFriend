@@ -25,10 +25,10 @@ import { SeasonPredictor } from '@/components/farmfriend/season-predictor';
 
 function PageContent() {
   const { user } = useUser();
-  const auth = useAuth();
+  const { auth } = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
-  const { setOpenMobile } = useSidebar();
+  const { setOpen: setOpenMobile } = useSidebar();
 
   const handleSignOut = () => {
     if (auth) {
