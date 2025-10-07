@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Leaf, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const SITE_PASSWORD = "farmfriend2024"; // The password to access the site
+const SITE_PASSWORD = "pranav130705"; // The password to access the site
 const SESSION_KEY = 'site_authenticated';
 
 export function PasswordProtect({ children }: { children: React.ReactNode }) {
