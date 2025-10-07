@@ -13,12 +13,14 @@ const SESSION_KEY = 'site_authenticated';
 
 export function PasswordProtect({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     // This effect runs only on the client-side
+    setIsClient(true);
     const sessionAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     if (sessionAuthenticated) {
       setIsAuthenticated(true);
@@ -46,14 +48,14 @@ export function PasswordProtect({ children }: { children: React.ReactNode }) {
     setPassword('');
   };
 
-  if (isAuthenticated) {
-    return <>{children}</>;
+  if (!isClient) {
+    // Render nothing on the server and during the initial client render
+    // to prevent hydration mismatch.
+    return null;
   }
 
-  // Render nothing on the server, and wait for client-side check.
-  // This prevents the password page from flashing on authenticated sessions.
-  if (typeof window === 'undefined') {
-    return null;
+  if (isAuthenticated) {
+    return <>{children}</>;
   }
 
   return (
