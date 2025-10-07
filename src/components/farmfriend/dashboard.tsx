@@ -256,8 +256,8 @@ export function SmartDashboard() {
                 <div className="flex justify-between text-center">
                   {displayForecast.map((day: any, index: number) => {
                       const Icon = weatherIconMapping[day.weather[0].icon] || Cloud;
-                      const dayName = weatherError ? dayNames[(new Date().getDay() + index) % 7] : new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
                       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      const dayName = weatherError ? dayNames[(new Date().getDay() + index) % 7] : new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
                       return (
                         <div key={day.dt} className="flex flex-col items-center gap-1">
                           <span className="text-sm font-medium">{dayName}</span>
