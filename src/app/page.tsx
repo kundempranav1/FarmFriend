@@ -28,7 +28,7 @@ function PageContent() {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, state } = useSidebar();
 
   const handleSignOut = () => {
     if (auth) {
@@ -48,12 +48,12 @@ function PageContent() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
       <Sidebar>
         <SidebarHeader>
            <div className="flex items-center gap-2 p-2">
               <Leaf className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground font-headline group-data-[state=collapsed]:hidden">
                   {t.appName}
               </h1>
           </div>
@@ -63,16 +63,18 @@ function PageContent() {
             <SidebarGroup>
               <SidebarGroupLabel>Settings</SidebarGroupLabel>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Profile' onClick={() => handleLinkClick('profile')}>
+                <SidebarMenuButton tooltip='Profile' title="Profile" onClick={() => handleLinkClick('profile')}>
                   <User />
-                  Profile
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                 <div className="flex items-center justify-between p-2">
-                      <div className="flex items-center gap-2">
+                 <div className="flex items-center justify-between p-2 group-data-[state=collapsed]:justify-center">
+                      <div className="flex items-center gap-2 group-data-[state=collapsed]:hidden">
                           <Palette />
                           <Label htmlFor="theme-switch">Theme</Label>
+                      </div>
+                      <div className="group-data-[state=expanded]:hidden">
+                        <Palette />
                       </div>
                       <Switch
                           id="theme-switch"
@@ -82,33 +84,29 @@ function PageContent() {
                   </div>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Features' onClick={() => handleLinkClick('app-features')}>
+                <SidebarMenuButton tooltip='Features' title="Features" onClick={() => handleLinkClick('app-features')}>
                   <Puzzle />
-                  Features
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Analytics' onClick={() => handleLinkClick('data-analytics')}>
+                <SidebarMenuButton tooltip='Analytics' title="Analytics" onClick={() => handleLinkClick('data-analytics')}>
                   <BarChart />
-                  Analytics
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip='Predictor' onClick={() => handleLinkClick('season-predictor')}>
+                <SidebarMenuButton tooltip='Predictor' title="Predictor" onClick={() => handleLinkClick('season-predictor')}>
                   <BrainCircuit />
-                  Predictor
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarGroup>
           </SidebarMenu>
         </SidebarContent>
-         <SidebarHeader>
+         <SidebarFooter>
               {user ? (
                   <SidebarMenu>
                       <SidebarMenuItem>
-                          <SidebarMenuButton onClick={handleSignOut}>
+                          <SidebarMenuButton title="Logout" onClick={handleSignOut}>
                               <LogOut />
-                              Logout
                           </SidebarMenuButton>
                       </SidebarMenuItem>
                   </SidebarMenu>
@@ -116,17 +114,16 @@ function PageContent() {
                   <SidebarMenu>
                        <SidebarMenuItem>
                          <Link href="/login" onClick={() => handleLinkClick('')}>
-                          <SidebarMenuButton>
+                          <SidebarMenuButton title="Login">
                               <LogIn />
-                              Login
                           </SidebarMenuButton>
                           </Link>
                       </SidebarMenuItem>
                   </SidebarMenu>
               )}
-          </SidebarHeader>
+          </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <div className="flex-1">
         <Header showSidebarTrigger={true} />
         <main className="flex-1">
           <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
@@ -145,7 +142,7 @@ function PageContent() {
         </main>
         <Footer />
         {user && <Chatbot />}
-      </SidebarInset>
+      </div>
     </div>
   )
 }
@@ -157,3 +154,5 @@ export default function Home() {
     </SidebarProvider>
   );
 }
+
+    
