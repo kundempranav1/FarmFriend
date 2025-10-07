@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -12,19 +13,22 @@ const marketplaceItems = [
     id: 1,
     nameKey: 'seeds',
     descriptionKey: 'seedsDescription',
-    image: 'https://picsum.photos/seed/farm-seeds/400/300'
+    image: 'https://picsum.photos/seed/plant-seeds/400/300',
+    imageHint: 'plant seeds'
   },
   {
     id: 2,
     nameKey: 'fertilizers',
     descriptionKey: 'fertilizersDescription',
-    image: 'https://picsum.photos/seed/farm-fertilizer/400/300'
+    image: 'https://picsum.photos/seed/soil-fertilizer/400/300',
+    imageHint: 'soil fertilizer'
   },
   {
     id: 3,
     nameKey: 'tools',
     descriptionKey: 'toolsDescription',
-    image: 'https://picsum.photos/seed/farm-tools/400/300'
+    image: 'https://picsum.photos/seed/gardening-tools/400/300',
+    imageHint: 'gardening tools'
   }
 ];
 
@@ -47,7 +51,14 @@ export function Marketplace() {
           <Card key={item.id}>
             <CardHeader>
               <div className="relative h-40 w-full mb-4">
-                <Image src={item.image} alt={t.marketplace[item.nameKey as keyof typeof t.marketplace]} layout="fill" objectFit="cover" className="rounded-t-lg" />
+                <Image 
+                  src={item.image} 
+                  alt={t.marketplace[item.nameKey as keyof typeof t.marketplace]} 
+                  layout="fill" 
+                  objectFit="cover" 
+                  className="rounded-t-lg"
+                  data-ai-hint={item.imageHint} 
+                />
               </div>
               <CardTitle>{t.marketplace[item.nameKey as keyof typeof t.marketplace]}</CardTitle>
               <CardDescription>{t.marketplace[item.descriptionKey as keyof typeof t.marketplace]}</CardDescription>
