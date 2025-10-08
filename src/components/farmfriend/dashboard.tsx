@@ -203,7 +203,8 @@ export function SmartDashboard() {
     <section id="dashboard" className="w-full">
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-          {t.dashboardTitle}
+          <span className="block">Grow Smart,</span>
+          <span className="block text-primary">Farm Better</span>
         </h2>
         <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mt-4">
           {t.dashboardDescription}
@@ -391,3 +392,5 @@ export function SmartDashboard() {
     </section>
   );
 }
+
+    
