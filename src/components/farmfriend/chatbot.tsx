@@ -87,7 +87,7 @@ export function Chatbot() {
                     {messages.map(message => (
                         <div key={message.id} className={cn("flex gap-3 text-sm", message.role === 'user' ? "justify-end" : "justify-start")}>
                         {message.role === 'bot' && <div className="p-2 bg-primary rounded-full h-fit"><Bot className="h-4 w-4 text-primary-foreground"/></div>}
-                        <div className={cn("p-3 rounded-lg max-w-[80%]", message.role === 'user' ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                        <div className={cn("p-3 rounded-lg max-w-[80%] break-words", message.role === 'user' ? "bg-primary text-primary-foreground" : "bg-muted")}>
                             {message.text}
                         </div>
                          {message.role === 'user' && <div className="p-2 bg-muted rounded-full h-fit"><User className="h-4 w-4 text-muted-foreground"/></div>}
