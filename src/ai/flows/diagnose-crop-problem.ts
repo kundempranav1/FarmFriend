@@ -33,6 +33,11 @@ const DiagnoseCropProblemOutputSchema = z.object({
 export type DiagnoseCropProblemOutput = z.infer<typeof DiagnoseCropProblemOutputSchema>;
 
 export async function diagnoseCropProblem(input: DiagnoseCropProblemInput): Promise<DiagnoseCropProblemOutput> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error(
+      "GEMINI_API_KEY environment variable is not set. Please set it in your environment/Vercel settings and redeploy."
+    );
+  }
   return diagnoseCropProblemFlow(input);
 }
 

@@ -28,13 +28,7 @@ export default function BrowseProductsPage() {
   const { data: products, isLoading: isLoadingProducts } = useCollection<CropForSale>(cropsForSaleQuery);
 
 
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router]);
-
-  if (isUserLoading || !user) {
+  if (isUserLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

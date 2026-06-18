@@ -28,6 +28,11 @@ const AnalyzeSoilHealthOutputSchema = z.object({
 export type AnalyzeSoilHealthOutput = z.infer<typeof AnalyzeSoilHealthOutputSchema>;
 
 export async function analyzeSoilHealth(input: AnalyzeSoilHealthInput): Promise<AnalyzeSoilHealthOutput> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error(
+      "GEMINI_API_KEY environment variable is not set. Please set it in your environment/Vercel settings and redeploy."
+    );
+  }
   return analyzeSoilHealthFlow(input);
 }
 

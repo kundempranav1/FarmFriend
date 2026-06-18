@@ -28,13 +28,7 @@ export default function SellCropsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router]);
-
-  if (isUserLoading || !user) {
+  if (isUserLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -59,20 +53,11 @@ export default function SellCropsPage() {
       return;
     }
 
-    if (!user) {
-        toast({
-            variant: "destructive",
-            title: "Not Authenticated",
-            description: "You must be logged in to sell crops.",
-        });
-        return;
-    }
-
     setIsSubmitting(true);
 
     try {
         const cropData = {
-            userId: user.uid,
+            userId: user?.uid || 'guest',
             cropName,
             quantity: Number(quantity),
             price: Number(price),
