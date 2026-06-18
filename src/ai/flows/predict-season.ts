@@ -58,7 +58,10 @@ const predictSeasonFlow = ai.defineFlow(
     outputSchema: PredictSeasonOutputSchema,
   },
   async input => {
-    const llmResponse = await prompt(input);
-    return llmResponse.output!;
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error('The AI model did not return a valid season prediction. Please try again.');
+    }
+    return output;
   }
 );
