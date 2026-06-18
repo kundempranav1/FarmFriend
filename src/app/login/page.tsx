@@ -15,7 +15,7 @@ import { useAuth } from "@/app/auth/context";
 
 export default function LoginPage() {
   const [signInEmail, setSignInEmail] = useState("pranavvenkat2005@gmail.com");
-  const [signInPassword, setSignInPassword] = useState("pranav2005");
+  const [signInPassword, setSignInPassword] = useState("p130705");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -37,13 +37,31 @@ export default function LoginPage() {
     try {
       await auth.signIn(signInEmail, signInPassword);
       router.push("/");
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Authentication Failed",
-        description: "Please check your email and password.",
-      });
+    } catch (error: any) {
+      if (error.code === 'auth/invalid-credential') {
+        // If user does not exist, try to sign them up instead.
+        try {
+            await auth.signUp(signInEmail, signInPassword);
+            toast({
+                title: "Account Created",
+                description: "Welcome! Your account has been created successfully.",
+            });
+            router.push("/");
+        } catch (signUpError: any) {
+             toast({
+                variant: "destructive",
+                title: "Sign Up Failed",
+                description: "Could not create an account. Please try the sign up tab.",
+            });
+        }
+      } else {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Authentication Failed",
+          description: "An unexpected error occurred during sign in.",
+        });
+      }
     } finally {
         setIsLoading(false);
     }
@@ -60,18 +78,32 @@ export default function LoginPage() {
       });
       router.push("/");
     } catch (error: any) {
-      console.error(error);
-      let description = "An error occurred during sign up.";
       if (error.code === 'auth/email-already-in-use') {
-        description = "This email is already in use. Please sign in.";
+        // If email is already in use, try to sign them in instead.
+        try {
+          await auth.signIn(signUpEmail, signUpPassword);
+          router.push("/");
+        } catch (signInError: any) {
+          toast({
+            variant: "destructive",
+            title: "Sign In Failed",
+            description: "This email is registered, but the password was incorrect.",
+          });
+        }
       } else if (error.code === 'auth/weak-password') {
-        description = "The password is too weak. Please choose a stronger password.";
+          toast({
+            variant: "destructive",
+            title: "Sign Up Failed",
+            description: "The password is too weak. Please choose a stronger password.",
+          });
+      } else {
+          console.error(error);
+          toast({
+            variant: "destructive",
+            title: "Sign Up Failed",
+            description: "An unexpected error occurred during sign up.",
+          });
       }
-      toast({
-        variant: "destructive",
-        title: "Sign Up Failed",
-        description: description,
-      });
     } finally {
         setIsLoading(false);
     }

@@ -53,7 +53,10 @@ const analyzeSoilHealthFlow = ai.defineFlow(
     outputSchema: AnalyzeSoilHealthOutputSchema,
   },
   async input => {
-    const llmResponse = await prompt(input);
-    return llmResponse;
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error("The AI model did not return a valid soil health analysis. Please try again.");
+    }
+    return output;
   }
 );

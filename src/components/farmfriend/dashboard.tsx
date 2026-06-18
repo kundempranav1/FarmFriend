@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -17,6 +17,7 @@ import { Sun, Cloud, CloudRain, Thermometer, Droplets, Wind, ArrowUp, ArrowDown,
 import { Button } from '../ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeSoilHealth, type AnalyzeSoilHealthOutput } from '@/ai/flows/analyze-soil-health';
@@ -140,7 +141,6 @@ export function SmartDashboard() {
           fetchWeatherData(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
-          console.error("Geolocation error:", error);
           setWeatherError("Could not get your location. Using sample data.");
           setWeatherData(staticWeatherData);
           setForecastData(staticForecastData);
@@ -367,7 +367,7 @@ export function SmartDashboard() {
                           <FormItem>
                             <FormLabel>Soil Photo</FormLabel>
                             <FormControl>
-                              <Input type="file" accept="image/*" onChange={(e) => { field.onChange(e.target.files); handleFileChange(e); }} />
+                              <Input type="file" accept="image/*" onChange={(e: React.ChangeEvent<HTMLInputElement>) => { field.onChange(e.target.files); handleFileChange(e); }} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

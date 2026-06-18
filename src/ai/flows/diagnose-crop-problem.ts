@@ -15,7 +15,8 @@ const DiagnoseCropProblemInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      'A photo of the affected crop, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'    ),
+      'A photo of the affected crop, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
+    ),
   description: z.string().describe('A description of the crop problem.'),
 });
 export type DiagnoseCropProblemInput = z.infer<typeof DiagnoseCropProblemInputSchema>;
@@ -39,18 +40,19 @@ const prompt = ai.definePrompt({
   name: 'diagnoseCropProblemPrompt',
   input: {schema: DiagnoseCropProblemInputSchema},
   output: {schema: DiagnoseCropProblemOutputSchema},
-  prompt: `You are an AI assistant that helps farmers diagnose problems with their crops.
+  prompt: `You are an expert agronomist AI specializing in diagnosing crop diseases from images and descriptions.
 
-You are provided with a photo and a description of the problem. You should use this information to diagnose the problem, provide a confidence score (0-1), and suggest potential solutions, including organic remedies and chemical treatments.
+Analyze the provided information to identify the likely problem. Provide a diagnosis, a confidence score between 0 and 1, and suggest solutions.
 
-Finally, provide prevention tips to avoid the problem in the future.
+- **Diagnosis:** The most likely disease, pest, or deficiency.
+- **Confidence Score:** Your confidence in the diagnosis (a number from 0.0 to 1.0).
+- **Solutions:** Provide a list of organic remedies and a separate list of chemical treatments.
+- **Prevention:** Offer practical tips to prevent this issue in the future.
 
-IMPORTANT: Your response must be only the raw JSON object, without any markdown formatting or other text.
+Your response MUST be a valid JSON object matching the requested schema. Do not include any extra text, markdown formatting, or explanations outside of the JSON structure.
 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
-
-Make sure the confidence score is a number between 0 and 1.
 `,
 });
 
@@ -61,26 +63,14 @@ const diagnoseCropProblemFlow = ai.defineFlow(
     outputSchema: DiagnoseCropProblemOutputSchema,
   },
   async input => {
-    const llmResponse = await prompt(input);
-    const text = llmResponse.text;
+    // By defining an output schema in the prompt, Genkit will automatically
+    // parse the model's response into a structured JSON object.
+    const { output } = await prompt(input);
 
-    try {
-      // Sometimes the model still wraps the response in markdown, so we clean it.
-      const cleanedText = text.replace(/```json\n?/, '').replace(/```$/, '');
-      return JSON.parse(cleanedText);
-    } catch (e) {
-      // If the output is not a valid JSON, we will ask the model to fix it.
-      const repairPrompt = ai.definePrompt({
-        name: 'repairJsonPrompt',
-        prompt: `The following output was supposed to be in JSON format, but is invalid.
-Please fix it and make sure to only return a valid JSON object.
-Do not include any other text or formatting.
-
-${text}`,
-        output: { schema: DiagnoseCropProblemOutputSchema },
-      });
-      const result = await repairPrompt();
-      return result;
+    if (!output) {
+        throw new Error("The AI model did not return a valid diagnosis. Please try again.");
     }
+
+    return output;
   }
 );

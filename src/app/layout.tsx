@@ -8,7 +8,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/app/auth/context';
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseClientProvider } from '@/firebase';
-import { PasswordProtect } from '@/components/farmfriend/password-protect';
 
 // Metadata cannot be exported from a client component.
 // We can either move it to a server component or define it here
@@ -37,23 +36,21 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased bg-background">
-        <PasswordProtect>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <LanguageProvider>
-              <FirebaseClientProvider>
-                <AuthProvider>
-                  {children}
-                  <Toaster />
-                </AuthProvider>
-              </FirebaseClientProvider>
-            </LanguageProvider>
-          </ThemeProvider>
-        </PasswordProtect>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LanguageProvider>
+            <FirebaseClientProvider>
+              <AuthProvider>
+                {children}
+                <Toaster />
+              </AuthProvider>
+            </FirebaseClientProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

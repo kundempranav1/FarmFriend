@@ -55,32 +55,38 @@ export function CropDoctor() {
     }
   };
 
+  const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setDiagnosis({ status: 'loading', data: null, error: null });
     setDialogOpen(false);
 
     try {
       const file = values.photo[0];
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        const result = await diagnoseCropProblem({
-          photoDataUri: base64data,
-          description: values.description,
-        });
-        setDiagnosis({ status: 'success', data: result, error: null });
-      };
-      reader.onerror = () => {
-        throw new Error("Failed to read file.");
-      }
+      const photoDataUri = await fileToDataUri(file);
+      
+      const result = await diagnoseCropProblem({
+        photoDataUri,
+        description: values.description,
+      });
+
+      setDiagnosis({ status: 'success', data: result, error: null });
+
     } catch (error) {
       console.error(error);
-      setDiagnosis({ status: 'error', data: null, error: t.toastDiagnosisError });
+      const errorMessage = (error instanceof Error) ? error.message : t.toastDiagnosisError;
+      setDiagnosis({ status: 'error', data: null, error: errorMessage });
       toast({
         variant: "destructive",
         title: t.toastErrorTitle,
-        description: t.toastDiagnosisError,
+        description: errorMessage,
       });
     }
   };
