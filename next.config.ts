@@ -35,6 +35,22 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb', // Allow larger image uploads
     },
   },
+  // Suppress optional missing module warnings from Genkit telemetry and html-to-docx
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@opentelemetry/exporter-jaeger': false,
+      };
+    }
+    // Suppress 'encoding' module warning from html-to-docx
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      encoding: false,
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
+
