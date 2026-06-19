@@ -1,14 +1,8 @@
 'use server';
 
-/**
- * @fileOverview A chatbot that answers questions about farming.
- *
- * - answerQuestion - A function that answers questions about farming.
- * - AnswerQuestionInput - The input type for the answerQuestion function.
- * - AnswerQuestionOutput - The return type for the answerQuestion function.
- */
-
-import {ai} from '@/ai/genkit';
+import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
+import {geminiConfig} from '@/ai/config';
 import {z} from 'genkit';
 
 const AnswerQuestionInputSchema = z.object({
@@ -22,26 +16,26 @@ const AnswerQuestionOutputSchema = z.object({
 export type AnswerQuestionOutput = z.infer<typeof AnswerQuestionOutputSchema>;
 
 export async function answerQuestion(input: AnswerQuestionInput): Promise<AnswerQuestionOutput> {
-  return answerQuestionFlow(input);
-}
+  // Initialize Genkit lazily inside the server action — avoids SSR crashes
+  const ai = genkit({
+    plugins: [googleAI({ apiKey: geminiConfig.apiKey })],
+    model: 'googleai/gemini-2.0-flash',
+  });
 
-const answerQuestionPrompt = ai.definePrompt({
-  name: 'answerQuestionPrompt',
-  input: {schema: AnswerQuestionInputSchema},
-  output: {schema: AnswerQuestionOutputSchema},
-  prompt: `You are a helpful farming assistant chatbot. Answer the following question:
+  const prompt = ai.definePrompt({
+    name: 'answerQuestionPrompt',
+    input: { schema: AnswerQuestionInputSchema },
+    output: { schema: AnswerQuestionOutputSchema },
+    prompt: `You are a helpful farming assistant chatbot. Answer the following question:
 
 {{question}}`,
-});
+  });
 
-const answerQuestionFlow = ai.defineFlow(
-  {
-    name: 'answerQuestionFlow',
-    inputSchema: AnswerQuestionInputSchema,
-    outputSchema: AnswerQuestionOutputSchema,
-  },
-  async input => {
-    const llmResponse = await answerQuestionPrompt(input);
-    return llmResponse.output!;
+  const { output } = await prompt(input);
+
+  if (!output) {
+    throw new Error('The AI model did not return an answer. Please try again.');
   }
-);
+
+  return output;
+}

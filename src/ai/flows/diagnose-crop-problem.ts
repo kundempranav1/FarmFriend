@@ -1,14 +1,8 @@
 'use server';
 
-/**
- * @fileOverview Diagnoses crop problems based on an image and description.
- *
- * - diagnoseCropProblem - A function that takes an image and description of a crop problem and returns a diagnosis, confidence score, and potential solutions.
- * - DiagnoseCropProblemInput - The input type for the diagnoseCropProblem function.
- * - DiagnoseCropProblemOutput - The return type for the diagnoseCropProblem function.
- */
-
-import {ai} from '@/ai/genkit';
+import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
+import {geminiConfig} from '@/ai/config';
 import {z} from 'genkit';
 
 const DiagnoseCropProblemInputSchema = z.object({
@@ -33,14 +27,17 @@ const DiagnoseCropProblemOutputSchema = z.object({
 export type DiagnoseCropProblemOutput = z.infer<typeof DiagnoseCropProblemOutputSchema>;
 
 export async function diagnoseCropProblem(input: DiagnoseCropProblemInput): Promise<DiagnoseCropProblemOutput> {
-  return diagnoseCropProblemFlow(input);
-}
+  // Initialize Genkit lazily inside the server action — avoids SSR crashes
+  const ai = genkit({
+    plugins: [googleAI({ apiKey: geminiConfig.apiKey })],
+    model: 'googleai/gemini-2.0-flash',
+  });
 
-const prompt = ai.definePrompt({
-  name: 'diagnoseCropProblemPrompt',
-  input: {schema: DiagnoseCropProblemInputSchema},
-  output: {schema: DiagnoseCropProblemOutputSchema},
-  prompt: `You are an expert agronomist AI specializing in diagnosing crop diseases from images and descriptions.
+  const prompt = ai.definePrompt({
+    name: 'diagnoseCropProblemPrompt',
+    input: { schema: DiagnoseCropProblemInputSchema },
+    output: { schema: DiagnoseCropProblemOutputSchema },
+    prompt: `You are an expert agronomist AI specializing in diagnosing crop diseases from images and descriptions.
 
 Analyze the provided information to identify the likely problem. Provide a diagnosis, a confidence score between 0 and 1, and suggest solutions.
 
@@ -54,23 +51,13 @@ Your response MUST be a valid JSON object matching the requested schema. Do not 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
 `,
-});
+  });
 
-const diagnoseCropProblemFlow = ai.defineFlow(
-  {
-    name: 'diagnoseCropProblemFlow',
-    inputSchema: DiagnoseCropProblemInputSchema,
-    outputSchema: DiagnoseCropProblemOutputSchema,
-  },
-  async input => {
-    // By defining an output schema in the prompt, Genkit will automatically
-    // parse the model's response into a structured JSON object.
-    const { output } = await prompt(input);
+  const { output } = await prompt(input);
 
-    if (!output) {
-        throw new Error("The AI model did not return a valid diagnosis. Please try again.");
-    }
-
-    return output;
+  if (!output) {
+    throw new Error('The AI model did not return a valid diagnosis. Please try again.');
   }
-);
+
+  return output;
+}
