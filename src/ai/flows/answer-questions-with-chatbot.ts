@@ -22,11 +22,6 @@ const AnswerQuestionOutputSchema = z.object({
 export type AnswerQuestionOutput = z.infer<typeof AnswerQuestionOutputSchema>;
 
 export async function answerQuestion(input: AnswerQuestionInput): Promise<AnswerQuestionOutput> {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error(
-      "GEMINI_API_KEY environment variable is not set. Please set it in your environment/Vercel settings and redeploy."
-    );
-  }
   return answerQuestionFlow(input);
 }
 

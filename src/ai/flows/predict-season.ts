@@ -29,11 +29,6 @@ const PredictSeasonOutputSchema = z.object({
 export type PredictSeasonOutput = z.infer<typeof PredictSeasonOutputSchema>;
 
 export async function predictSeason(input: PredictSeasonInput): Promise<PredictSeasonOutput> {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error(
-      "GEMINI_API_KEY environment variable is not set. Please set it in your environment/Vercel settings and redeploy."
-    );
-  }
   return predictSeasonFlow(input);
 }
 
